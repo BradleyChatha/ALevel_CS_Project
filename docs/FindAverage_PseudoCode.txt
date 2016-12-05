@@ -1,0 +1,47 @@
+refType Node
+	var Wins     as UnsignedInteger
+	var Losses   as UnsignedInteger
+	var Children as DynamicArray:Node
+	
+	function AverageWinPercentage() returns FloatingPoint
+		return (self.Wins / (self.Wins + self.Losses)) * 100
+	end
+end
+
+valueType Average
+	var Path       as DynamicArray:Node
+	var Percentage as FloatingPoint
+	
+	// Calculates the average win percentage of the path.
+	function CalculateFinalPercentage() returns Void
+		self.Percentage = (self.Percentage / (self.Path.Length * 100.0)) * 100
+	end
+end
+
+function CalculateAverages(Root as Node) returns DynamicArray:Average
+	var Averages as DynamicArray:Average
+	
+	closure Walk(CurrentNode as Node, CurrentAverage as Average)
+		CurrentAverage.Percentage += CurrentNode.AverageWinPercentage()
+		CurrentAverage.Path        = CurrentAverage.Path.Copy()
+		CurrentAverage.Path.Add(CurrentNode)
+		
+		// Slight note: Because "Average" is a valueType, every copy of it will still be using
+		// the same DynamicArray, which will cause issues. Which is why it has to be copied before we add to it.
+		// This is of course, inefficient in terms of memory usage. But my entire algorithm is probably inefficient.
+		
+		if CurrentAverage.Children.Length == 0 then
+			CurrentAverage.CalculateFinalPercentage()
+			Averages.Add(CurrentAverage)
+		else
+			foreach Child as Node, CurrentNode.Children do
+				Walk(Child, CurrentAverage)
+			end
+		end
+	end
+	
+	var StartAverage as Average	
+	Walk(Root, StartAverage)
+	
+	return Averages
+end
