@@ -108,9 +108,9 @@ namespace CS_Project.Game
         /// In the future, when I can be bothered, exceptions will be thrown instead so this constructor is more user-friendly.
         /// </param>
         /// <exception cref="Game.Hash">If `myPiece` is `Board.Piece.empty`</exception>
-        public Hash(Board.Piece myPiece, string hash) : this(myPiece, false)
+        public Hash(Board.Piece myPiece, IEnumerable<char> hash) : this(myPiece, false)
         {
-            this._hash = hash.ToCharArray();
+            this._hash = hash.ToArray();
             this.checkCorrectness();
         }
 
