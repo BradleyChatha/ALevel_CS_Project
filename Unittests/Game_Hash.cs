@@ -62,6 +62,9 @@ namespace Unittests
             Array.ForEach(mineIndicies,  i => { Assert.IsTrue( hash.isMyPiece(i)); });
             Array.ForEach(otherIndicies, i => { Assert.IsTrue(!hash.isMyPiece(i)); });
             Array.ForEach(emptyIndicies, i => { Assert.IsTrue( hash.isEmpty(i)); });
+
+            // Test Clone
+            Assert.AreEqual(hash.ToString(), hash.Clone().ToString());
         }
     }
 }

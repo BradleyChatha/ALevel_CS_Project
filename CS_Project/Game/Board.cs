@@ -45,7 +45,7 @@ namespace CS_Project.Game
     /// <summary>
     /// Contains a hash of the game board.
     /// </summary>
-    public class Hash
+    public class Hash : ICloneable
     {
         private char[] _hash; // The hash itself
 
@@ -187,6 +187,15 @@ namespace CS_Project.Game
         public bool isEmpty(int index)
         {
             return this.getPieceChar(index) == Hash.emptyChar;
+        }
+
+        /// <summary>
+        /// Clones the Hash.
+        /// </summary>
+        /// <returns>A clone of this instance of Hash.</returns>
+        public object Clone()
+        {
+            return new Hash(this.myPiece, this.ToString());
         }
 
         /// <summary>
