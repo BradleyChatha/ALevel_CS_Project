@@ -51,6 +51,17 @@ namespace Unittests
             hash.setPiece(Board.Piece.empty, 1, true);
             hash.setPiece(hash.otherPiece,   2, true);
             Assert.AreEqual(hash.ToString(), $"{Hash.myChar}.{Hash.otherChar}......");
+
+            // Test second constructor of Hash
+            hash = new Hash(Board.Piece.x, "MO.OM.MOM");
+
+            var mineIndicies  = new int[]{0, 4, 6, 8};
+            var otherIndicies = new int[]{1, 3, 7};
+            var emptyIndicies = new int[]{2, 5};
+
+            Array.ForEach(mineIndicies,  i => { Assert.IsTrue( hash.isMyPiece(i)); });
+            Array.ForEach(otherIndicies, i => { Assert.IsTrue(!hash.isMyPiece(i)); });
+            Array.ForEach(emptyIndicies, i => { Assert.IsTrue( hash.isEmpty(i)); });
         }
     }
 }

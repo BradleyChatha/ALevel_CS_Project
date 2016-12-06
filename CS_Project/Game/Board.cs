@@ -74,20 +74,43 @@ namespace CS_Project.Game
         /// </summary>
         public readonly Board.Piece myPiece;
 
-        /// <summary>
-        /// Constructs a new Hash.
-        /// </summary>
-        /// <param name="myPiece">The piece that you are using, this is needed so the class knows how to correctly format the hash.</param>
-        /// <exception cref="Game.Hash">If `myPiece` is `Board.Piece.empty`</exception>
-        public Hash(Board.Piece myPiece)
+        private Hash(Board.Piece myPiece, bool dummyParam)
         {
-            if(myPiece == Board.Piece.empty)
+            if (myPiece == Board.Piece.empty)
                 throw new HashException("myPiece must not be Board.Piece.empty");
 
             this.myPiece    = myPiece;
             this.otherPiece = (myPiece == Board.Piece.o) ? Board.Piece.x
                                                          : Board.Piece.o;
-            this._hash      = new string(Hash.emptyChar, 9).ToCharArray(); // A string made up of 9 empty spaces
+        }
+
+        /// <summary>
+        /// Constructs a new Hash.
+        /// </summary>
+        /// <param name="myPiece">The piece that you are using, this is needed so the class knows how to correctly format the hash.</param>
+        /// <exception cref="Game.Hash">If `myPiece` is `Board.Piece.empty`</exception>
+        public Hash(Board.Piece myPiece) : this(myPiece, new string(Hash.emptyChar, 9))
+        {
+        }
+
+        /// <summary>
+        /// Constructs a new Hash from a given hash string.
+        /// </summary>
+        /// <param name="myPiece">The piece that you are using, this is needed so the class knows how to correctly format the hash.</param>
+        /// <param name="hash">
+        /// The hash string to use.
+        /// 
+        /// An internal check is made with every function call, that determines if the hash is still correct:
+        ///     * The hash's length must be the same as 'Board.pieceCount'
+        ///     * The hash's characters must only be made up of 'Hash.myChar', 'Hash.otherChar', and 'Hash.emptyChar'.
+        ///     
+        /// If the given hash fails to meet any of these checks, then a message box will be displayed.
+        /// In the future, when I can be bothered, exceptions will be thrown instead so this constructor is more user-friendly.
+        /// </param>
+        /// <exception cref="Game.Hash">If `myPiece` is `Board.Piece.empty`</exception>
+        public Hash(Board.Piece myPiece, string hash) : this(myPiece, false)
+        {
+            this._hash = hash.ToCharArray();
             this.checkCorrectness();
         }
 
