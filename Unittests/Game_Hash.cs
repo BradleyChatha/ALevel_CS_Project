@@ -50,7 +50,7 @@ namespace Unittests
             hash.setPiece(hash.myPiece,      0, true);
             hash.setPiece(Board.Piece.empty, 1, true);
             hash.setPiece(hash.otherPiece,   2, true);
-            Assert.AreEqual(hash.ToString(), $"M.O......");
+            Assert.AreEqual(hash.ToString(), $"{Hash.myChar}.{Hash.otherChar}......");
         }
     }
 }

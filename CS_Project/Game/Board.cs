@@ -47,11 +47,22 @@ namespace CS_Project.Game
     /// </summary>
     public class Hash
     {
-        public const char _otherChar = 'O'; // Char that represents the other player's piece
-        public const char _myChar    = 'M'; // Char that represents the piece of the player using this class
-        public const char _emptyChar = '.'; // Char that represents an empty space
-
         private char[] _hash; // The hash itself
+
+        /// <summary>
+        /// Char that represents the other player's piece
+        /// </summary>
+        public const char otherChar = 'O';
+
+        /// <summary>
+        /// Char that represents the piece of the player using this class
+        /// </summary>
+        public const char myChar    = 'M';
+
+        /// <summary>
+        /// Char that represents an empty space
+        /// </summary>
+        public const char emptyChar = '.';
 
         /// <summary>
         /// The piece that the other player is using.
@@ -76,7 +87,7 @@ namespace CS_Project.Game
             this.myPiece    = myPiece;
             this.otherPiece = (myPiece == Board.Piece.o) ? Board.Piece.x
                                                          : Board.Piece.o;
-            this._hash      = new string(Hash._emptyChar, 9).ToCharArray(); // A string made up of 9 empty spaces
+            this._hash      = new string(Hash.emptyChar, 9).ToCharArray(); // A string made up of 9 empty spaces
             this.checkCorrectness();
         }
 
@@ -97,14 +108,14 @@ namespace CS_Project.Game
         /// <exception cref="Game.HashException">If `allowOverwrite` is false, and there is a non-empty piece at 'index'</exception>
         public void setPiece(Board.Piece piece, int index, bool allowOverwrite = false)
         {
-            if(this.getPieceChar(index) != Hash._emptyChar && !allowOverwrite)
+            if(this.getPieceChar(index) != Hash.emptyChar && !allowOverwrite)
                 throw new HashException($"Attempted to place {piece} at index {index}, however a non-null piece is there and allowOverwrite is false. Hash = {this._hash}");
 
             char pieceChar = '\0';
 
-            if      (piece == this.myPiece)     pieceChar = Hash._myChar;
-            else if (piece == this.otherPiece)  pieceChar = Hash._otherChar;
-            else                                pieceChar = Hash._emptyChar;
+            if      (piece == this.myPiece)     pieceChar = Hash.myChar;
+            else if (piece == this.otherPiece)  pieceChar = Hash.otherChar;
+            else                                pieceChar = Hash.emptyChar;
 
             this._hash[index] = pieceChar;
             this.checkCorrectness();
@@ -123,9 +134,9 @@ namespace CS_Project.Game
 
             switch(pieceChar)
             {
-                case Hash._emptyChar: piece = Board.Piece.empty; break;
-                case Hash._myChar:    piece = this.myPiece;      break;
-                case Hash._otherChar: piece = this.otherPiece;   break;
+                case Hash.emptyChar: piece = Board.Piece.empty; break;
+                case Hash.myChar:    piece = this.myPiece;      break;
+                case Hash.otherChar: piece = this.otherPiece;   break;
 
                 default: Debug.Assert(false, "This should not have happened"); break;
             }
@@ -141,7 +152,7 @@ namespace CS_Project.Game
         /// <returns>`true` if the piece at `index` belongs to the user of this class. `false` otherwise.</returns>
         public bool isMyPiece(int index)
         {
-            return this.getPieceChar(index) == Hash._myChar;
+            return this.getPieceChar(index) == Hash.myChar;
         }
 
         /// <summary>
@@ -152,7 +163,7 @@ namespace CS_Project.Game
         /// <returns>`true` if the piece at `index` is empty. `false` otherwise.</returns>
         public bool isEmpty(int index)
         {
-            return this.getPieceChar(index) == Hash._emptyChar;
+            return this.getPieceChar(index) == Hash.emptyChar;
         }
 
         /// <summary>
@@ -178,7 +189,7 @@ namespace CS_Project.Game
             Debug.Assert(this._hash.Length == Board.pieceCount, 
                         $"The length of the hash is {this._hash.Length} when it should be {Board.pieceCount}");
 
-            Debug.Assert(this._hash.All(c => (c == Hash._emptyChar || c == Hash._myChar || c == Hash._otherChar)),
+            Debug.Assert(this._hash.All(c => (c == Hash.emptyChar || c == Hash.myChar || c == Hash.otherChar)),
                         $"The hash contains an invalid character. Hash = {this._hash}");
         }
 
