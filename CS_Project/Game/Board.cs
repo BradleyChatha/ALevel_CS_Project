@@ -234,6 +234,24 @@ namespace CS_Project.Game
             if (index >= Board.pieceCount)
                 throw new ArgumentOutOfRangeException("index", $"index must be between 0 and {index}(exclusive)");
         }
+
+        // override object.Equals(auto generated with tweaks)
+        public override bool Equals(object obj)
+        {
+            if (obj == null || GetType() != obj.GetType())
+            {
+                return false;
+            }
+
+            var other = (Hash)obj;
+            return (other.ToString() == this.ToString()) && (other.myPiece == this.myPiece);
+        }
+
+        // override object.GetHashCode(auto generated)
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
+        }
     }
 
 
