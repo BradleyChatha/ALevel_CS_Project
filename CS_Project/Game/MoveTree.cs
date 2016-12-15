@@ -41,6 +41,30 @@ namespace CS_Project.Game
         public List<Node> children { private set; get; }
 
         /// <summary>
+        /// Calculates the percentage of games that have been won.
+        /// </summary>
+        public float winPercent
+        {
+            get
+            {
+                float total = (this.won + this.lost);
+                return (this.won / total) * 100.0f;
+            }
+        }
+
+        /// <summary>
+        /// Calculates the percentage of games that have been lost.
+        /// </summary>
+        public float losePercent
+        {
+            get
+            {
+                float total = (this.won + this.lost);
+                return (this.lost / total) * 100.0f;
+            }
+        }
+
+        /// <summary>
         /// Creates a new Node
         /// </summary>
         /// <param name="hash">The 'Hash' of the board after the move was made.</param>
@@ -74,6 +98,81 @@ namespace CS_Project.Game
             }
 
             return toReturn;
+        }
+    }
+
+    /// <summary>
+    /// Contains a node path, and can calculate the average win percentage of the path.
+    /// 
+    /// Also contains static functions to help find, for example, the path that will most likely result in a win.
+    /// </summary>
+    public class Average
+    {
+        /// <summary>
+        /// The node path
+        /// </summary>
+        public List<Node> path;
+
+        /// <summary>
+        /// Calculates the average win percentage of the path.
+        /// </summary>
+        public float averageWinPercent
+        {
+            get
+            {
+                if(this.path.Count == 0)
+                    return 0;
+
+                float totalPercent = 0;
+                this.path.ForEach(node => totalPercent += node.winPercent);
+
+                return (totalPercent / this.path.Count);
+            }
+        }
+
+        /// <summary>
+        /// Creates a new Average.
+        /// </summary>
+        public Average()
+        {
+            this.path = new List<Node>();
+        }
+
+        /// <summary>
+        /// Finds the path in 'root' that is statistically the most likely to win.
+        /// </summary>
+        /// <param name="root">The root node to search through.</param>
+        /// <returns>An 'Average' containing the path with the highest win percent.</returns>
+        public static Average statisticallyBest(Node root)
+        {
+            var path = new Average();
+            var best = new Average();
+
+            Func<Node, bool, bool> walk = null;
+            walk = delegate(Node node, bool noAdd) 
+            {
+                if(!noAdd) // Used so we don't add in the root node
+                    path.path.Add(node);
+
+                if(node.children.Count == 0)
+                {
+                    if(path.averageWinPercent > best.averageWinPercent)
+                        best.path = new List<Node>(path.path); // Copies the list
+                }
+                else
+                {
+                    foreach(var child in node.children)
+                    {
+                        walk(child, false);
+                        path.path.RemoveAt(path.path.Count - 1); // Shrink the list by 1 once its done
+                    }
+                }
+
+                return false; // Dummy value
+            };
+
+            walk(root, true);
+            return best;
         }
     }
 
