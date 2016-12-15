@@ -44,7 +44,7 @@ namespace CS_Project.Game.Tests
 
             // Then finally see if it walks through things properly
             // We have to change the last hash in path first though
-            path[1] = new Hash(p, $"{m}.{o}......");
+            path[1] = new Hash(p, $"{m}.{o}......"); // "M........" -> "M.O......"
 
             Assert.IsTrue(path[1].Equals(tree.walk(path).hash));
         }
