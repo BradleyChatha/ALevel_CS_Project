@@ -106,10 +106,10 @@ namespace CS_Project.Game
         /// 
         /// A certain 'depth' can be given. For example, a depth of 2 means only 2 nodes are walked to before this function returns.
         /// </summary>
-        /// <param name="path">The root of the path to walk.</param>
+        /// <param name="path">An enumeration of hashes, describing the path to walk.</param>
         /// <param name="depth">The maximum number of nodes to walk past.</param>
         /// <returns>The node at the end of the walked path. Or `null` if the entire path couldn't be walked through.</returns>
-        public Node walk(Node path, uint depth = uint.MaxValue)
+        public Node walk(IList<Hash> path, uint depth = uint.MaxValue)
         {
             if(path == null)
                 throw new ArgumentNullException("path");
@@ -117,22 +117,22 @@ namespace CS_Project.Game
             if(depth == 0)
                 throw new ArgumentOutOfRangeException("depth", "The depth must be 1 or more");
 
-            uint walked      = 0;
-            Node currentThis = this.root; // Current node in this tree
-            Node currentPath = path;      // Current node in the path
+            uint walked     = 0;
+            var currentThis = this.root;            // Current node in this tree
+            var currentPath = path.GetEnumerator(); // Current hash in the path
+            currentPath.MoveNext();
 
-            while(walked < depth && currentThis != null && currentPath != null)
+            while(walked < depth && currentThis != null && walked < path.Count)
             {
                 walked += 1;
-                Debug.Assert(currentPath.children.Count <= 1, "A node in the path contains more than 1 child.");
 
                 bool found = false;
                 foreach(var node in currentThis.children)
                 {
-                    if(node.hash.Equals(currentPath.hash))
+                    if(node.hash.Equals(currentPath.Current))
                     {
+                        currentPath.MoveNext();
                         currentThis = node;
-                        currentPath = currentPath.children.ElementAtOrDefault(0);
                         found       = true;
                         break;
                     }

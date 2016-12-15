@@ -35,22 +35,18 @@ namespace CS_Project.Game.Tests
 
             // First, seeing if it returns null on an invalid path.
             // "M........" -> "MM......."
-            var path        = new Node(new Hash(p, $"{m}........"),   0);
-            path.children.Add(new Node(new Hash(p, $"{m}{m}......."), 1));
+            var path = new Hash[] { new Hash(p, $"{m}........"),
+                                    new Hash(p, $"{m}{m}.......")};
             Assert.IsNull(tree.walk(path));
 
             // Then see if depth works
-            Assert.IsTrue(path.hash.Equals(tree.walk(path, 1).hash));
+            Assert.IsTrue(path[0].Equals(tree.walk(path, 1).hash));
 
             // Then finally see if it walks through things properly
-            // We have to change the last node in path first though
-            path.children[0] = new Node(new Hash(p, $"{m}.{o}......"), 2);
+            // We have to change the last hash in path first though
+            path[1] = new Hash(p, $"{m}.{o}......");
 
-            Node lastNode = path;
-            while(lastNode.children.Count != 0)
-                lastNode = lastNode.children[0];
-
-            Assert.IsTrue(lastNode.hash.Equals(tree.walk(path).hash));
+            Assert.IsTrue(path[1].Equals(tree.walk(path).hash));
         }
     }
 }
