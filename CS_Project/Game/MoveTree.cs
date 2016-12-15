@@ -50,7 +50,8 @@ namespace CS_Project.Game
         /// <param name="hash">The 'Hash' of the board after the move was made.</param>
         /// <param name="index">The index of the slot that was changed.</param>
         /// <param name="won">How many times this move was used in a won match.</param>
-        /// <param name="lost">The opposite of 'won'</param>
+        /// <param name="lost">The opposite of 'won'.</param>
+        /// <exception cref="System.ArgumentNullException">When `hash` is null.</exception>
         public Node(Hash hash, uint index, uint won = 0, uint lost = 0)
         {
             if(hash == null)
