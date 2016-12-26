@@ -38,7 +38,7 @@ namespace CS_Project.Game
         /// <summary>
         /// This node's children.
         /// </summary>
-        public List<Node> children { private set; get; }
+        public List<Node> children { set; get; }
 
         /// <summary>
         /// Calculates the percentage of games that have been won.
@@ -83,6 +83,12 @@ namespace CS_Project.Game
             this.lost     = lost;
             this.children = new List<Node>();
         }
+
+        /// <summary>
+        /// Not for direct use. This is only here for serialisation.
+        /// </summary>
+        public Node()
+        { }
 
         /// <summary>
         /// Clones the node, and all of it's children.

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.IO;
 
 /// <summary>
 /// Contains everything related to the game board.
@@ -45,7 +46,7 @@ namespace CS_Project.Game
     /// <summary>
     /// Contains a hash of the game board.
     /// </summary>
-    public class Hash : ICloneable
+    public class Hash : ICloneable, ISerialiseable
     {
         private char[] _hash; // The hash itself
 
@@ -67,12 +68,12 @@ namespace CS_Project.Game
         /// <summary>
         /// The piece that the other player is using.
         /// </summary>
-        public readonly Board.Piece otherPiece; // This and myPiece are readonly since once they've been set, they shouldn't be changed.
+        public Board.Piece otherPiece {private set; get;} // This and myPiece are readonly since once they've been set, they shouldn't be changed.
 
         /// <summary>
         /// The piece that the user of this class is using.
         /// </summary>
-        public readonly Board.Piece myPiece;
+        public Board.Piece myPiece {private set; get;}
 
         private Hash(Board.Piece myPiece, bool dummyParam)
         {
@@ -83,6 +84,12 @@ namespace CS_Project.Game
             this.otherPiece = (myPiece == Board.Piece.o) ? Board.Piece.x
                                                          : Board.Piece.o;
         }
+
+        /// <summary>
+        /// Use this constructor when an instance of Hash is needed for deserialisation reasons.
+        /// </summary>
+        public Hash()
+        { }
 
         /// <summary>
         /// Constructs a new Hash.
@@ -251,6 +258,29 @@ namespace CS_Project.Game
         public override int GetHashCode()
         {
             return base.GetHashCode();
+        }
+
+        // implement ISerialiseable.serialise
+        public void serialise(BinaryWriter output)
+        {
+            this.checkCorrectness();
+            Debug.Assert(this._hash.Length <= byte.MaxValue, "The hash's length can't fit into a byte.");
+
+            output.Write((byte)this._hash.Length);
+            output.Write((char[])this._hash);
+            output.Write((byte)this.myPiece);
+            output.Write((byte)this.otherPiece);
+        }
+
+        // implement ISerialiseable.deserialise
+        public void deserialise(BinaryReader input)
+        {
+            var length      = input.ReadByte();
+            this._hash      = input.ReadChars(length);
+            this.myPiece    = (Board.Piece)input.ReadByte();
+            this.otherPiece = (Board.Piece)input.ReadByte();
+
+            this.checkCorrectness();
         }
     }
 
