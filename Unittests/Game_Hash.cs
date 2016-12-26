@@ -2,6 +2,7 @@
 using CS_Project.Game;
 using System;
 using System.Linq;
+using System.IO;
 
 namespace Unittests
 {
@@ -65,6 +66,47 @@ namespace Unittests
 
             // Test Clone and Equals
             Assert.IsTrue(hash.Clone().Equals(hash));
+        }
+
+        [TestMethod()]
+        public void hashSerialiseTest()
+        {
+            var dir = "Temp";
+            var file = "Serialised_Hash.bin";
+            var path = $"{dir}/{file}";
+
+            if (!Directory.Exists(dir))
+                Directory.CreateDirectory(dir);
+
+            using (var stream = File.Create(path))
+            {
+                using (var writer = new BinaryWriter(stream))
+                {
+                    var hash = new Hash(Board.Piece.x, "MO.OM.MOM");
+                    var hash2 = new Hash(Board.Piece.o, "OM.MO.OMO");
+
+                    hash.serialise(writer);
+                    hash2.serialise(writer);
+                }
+            }
+
+            using (var stream = File.OpenRead(path))
+            {
+                using (var reader = new BinaryReader(stream))
+                {
+                    var hash = new Hash();
+
+                    hash.deserialise(reader);
+                    Assert.AreEqual("MO.OM.MOM", hash.ToString());
+                    Assert.AreEqual(Board.Piece.x, hash.myPiece);
+                    Assert.AreEqual(Board.Piece.o, hash.otherPiece);
+
+                    hash.deserialise(reader);
+                    Assert.AreEqual("OM.MO.OMO", hash.ToString());
+                    Assert.AreEqual(Board.Piece.o, hash.myPiece);
+                    Assert.AreEqual(Board.Piece.x, hash.otherPiece);
+                }
+            }
         }
     }
 }
