@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -13,17 +14,17 @@ namespace CS_Project.Game
     /// <summary>
     /// A node describing a single move.
     /// </summary>
-    public class Node : ICloneable
+    public class Node : ICloneable, ISerialiseable
     {
         /// <summary>
         /// The hash of the board after the move was made.
         /// </summary>
-        public readonly Hash hash;
+        public Hash hash { private set; get; }
 
         /// <summary>
         /// The index of what slot was changed this move.
         /// </summary>
-        public readonly uint index;
+        public uint index { private set; get; }
 
         /// <summary>
         /// How many times this move was used in a game that was won.
@@ -101,6 +102,7 @@ namespace CS_Project.Game
         public Node()
         {
             this.children = new List<Node>();
+            this.hash     = new Hash();
         }
 
         /// <summary>
@@ -111,7 +113,7 @@ namespace CS_Project.Game
         {
             var toReturn = new Node((Hash)this.hash.Clone(), this.index, this.won, this.lost);
             
-            foreach(var child in this.children)
+            foreach(var child in this.children) 
                 toReturn.children.Add((Node)child.Clone());
 
             return toReturn;
@@ -161,6 +163,37 @@ namespace CS_Project.Game
             }
 
             return currentThis;
+        }
+
+        public void serialise(BinaryWriter output)
+        {
+            Debug.Assert(this.children.Count <= byte.MaxValue, "For some reason, this Node has over 255 children e_e?");
+
+            this.hash.serialise(output);
+            output.Write((uint)this.index);
+            output.Write((uint)this.won);
+            output.Write((uint)this.lost);
+            output.Write((byte)this.children.Count);
+            
+            foreach(var node in this.children)
+                node.serialise(output);
+        }
+
+        public void deserialise(BinaryReader input)
+        {
+            this.hash.deserialise(input);
+            this.index = input.ReadUInt32();
+            this.won   = input.ReadUInt32();
+            this.lost  = input.ReadUInt32();
+
+            var count     = input.ReadByte();
+            this.children = new List<Node>();
+            for(int i = 0; i < count; i++)
+            {
+                var node = new Node();
+                node.deserialise(input); 
+                this.children.Add(node);
+            }
         }
     }
 
