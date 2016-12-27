@@ -86,9 +86,11 @@ namespace CS_Project.Game
         }
 
         /// <summary>
-        /// Use this constructor when an instance of Hash is needed for deserialisation reasons.
+        /// Default constructor for a Hash
+        /// 
+        /// Note that the 'myPiece' for the hash will be 'Board.Piece.x'
         /// </summary>
-        public Hash()
+        public Hash() : this(Board.Piece.x)
         { }
 
         /// <summary>
