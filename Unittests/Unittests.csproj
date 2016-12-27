@@ -53,10 +53,9 @@
   </Choose>
   <ItemGroup>
     <Compile Include="Game\AverageTests.cs" />
-    <Compile Include="Game\MoveTreeTests.cs" />
+    <Compile Include="Game\NodeTests.cs" />
     <Compile Include="Game_Hash.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SerialiseTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\CS_Project\CS_Project.csproj">

@@ -65,6 +65,17 @@ namespace CS_Project.Game
         }
 
         /// <summary>
+        /// Creates a node suitable for use as a root node.
+        /// </summary>
+        public static Node root
+        {
+            get
+            {
+                return new Node(new Hash(Board.Piece.x, "........."), uint.MaxValue);
+            }
+        }
+
+        /// <summary>
         /// Creates a new Node
         /// </summary>
         /// <param name="hash">The 'Hash' of the board after the move was made.</param>
@@ -104,6 +115,52 @@ namespace CS_Project.Game
             }
 
             return toReturn;
+        }
+
+        /// <summary>
+        /// Walks through this tree along a given 'path' and returns the node from this tree at the end of the path.
+        /// 
+        /// Each node in the path must have 0 or 1 children, as it is a straight path to walk.
+        /// 
+        /// A certain 'depth' can be given. For example, a depth of 2 means only 2 nodes are walked to before this function returns.
+        /// </summary>
+        /// <param name="path">An enumeration of hashes, describing the path to walk.</param>
+        /// <param name="depth">The maximum number of nodes to walk past.</param>
+        /// <returns>The node at the end of the walked path. Or `null` if the entire path couldn't be walked through.</returns>
+        public Node walk(IList<Hash> path, uint depth = uint.MaxValue)
+        {
+            if (path == null)
+                throw new ArgumentNullException("path");
+
+            if (depth == 0)
+                throw new ArgumentOutOfRangeException("depth", "The depth must be 1 or more");
+
+            uint walked = 0;
+            var currentThis = this;                 // Current node in this tree
+            var currentPath = path.GetEnumerator(); // Current hash in the path
+            currentPath.MoveNext();
+
+            while (walked < depth && currentThis != null && walked < path.Count)
+            {
+                walked += 1;
+
+                bool found = false;
+                foreach (var node in currentThis.children)
+                {
+                    if (node.hash.Equals(currentPath.Current))
+                    {
+                        currentPath.MoveNext();
+                        currentThis = node;
+                        found = true;
+                        break;
+                    }
+                }
+
+                if (!found)
+                    return null;
+            }
+
+            return currentThis;
         }
     }
 
@@ -179,83 +236,6 @@ namespace CS_Project.Game
 
             walk(root, true);
             return best;
-        }
-    }
-
-    /// <summary>
-    /// An implementation of a tree, which stores `MoveTree.Node` in it.
-    /// 
-    /// This class is used to store data about moves used in the game.
-    /// </summary>
-    public class MoveTree : ICloneable
-    {
-        /// <summary>
-        /// The root of the tree.
-        /// 
-        /// This node will always have the hash of "........." and index of `uint.MaxValue`.
-        /// </summary>
-        public Node root { private set; get; }
-
-        /// <summary>
-        /// Create a new MoveTree.
-        /// </summary>
-        public MoveTree()
-        {
-            this.root = new Node(new Hash(Board.Piece.o, "........."), uint.MaxValue);
-        }
-
-        /// <summary>
-        /// Walks through this tree along a given 'path' and returns the node from this tree at the end of the path.
-        /// 
-        /// Each node in the path must have 0 or 1 children, as it is a straight path to walk.
-        /// 
-        /// A certain 'depth' can be given. For example, a depth of 2 means only 2 nodes are walked to before this function returns.
-        /// </summary>
-        /// <param name="path">An enumeration of hashes, describing the path to walk.</param>
-        /// <param name="depth">The maximum number of nodes to walk past.</param>
-        /// <returns>The node at the end of the walked path. Or `null` if the entire path couldn't be walked through.</returns>
-        public Node walk(IList<Hash> path, uint depth = uint.MaxValue)
-        {
-            if(path == null)
-                throw new ArgumentNullException("path");
-
-            if(depth == 0)
-                throw new ArgumentOutOfRangeException("depth", "The depth must be 1 or more");
-
-            uint walked     = 0;
-            var currentThis = this.root;            // Current node in this tree
-            var currentPath = path.GetEnumerator(); // Current hash in the path
-            currentPath.MoveNext();
-
-            while(walked < depth && currentThis != null && walked < path.Count)
-            {
-                walked += 1;
-
-                bool found = false;
-                foreach(var node in currentThis.children)
-                {
-                    if(node.hash.Equals(currentPath.Current))
-                    {
-                        currentPath.MoveNext();
-                        currentThis = node;
-                        found       = true;
-                        break;
-                    }
-                }
-
-                if(!found)
-                    return null;
-            }
-
-            return currentThis;
-        }
-
-        public object Clone()
-        {
-            var toReturn  = new MoveTree();
-            toReturn.root = (Node)this.root.Clone();            
-
-            return toReturn;
         }
     }
 }
