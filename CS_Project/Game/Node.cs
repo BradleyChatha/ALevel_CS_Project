@@ -96,10 +96,12 @@ namespace CS_Project.Game
         }
 
         /// <summary>
-        /// Not for direct use. This is only here for serialisation.
+        /// Default constructor for a Node.
         /// </summary>
         public Node()
-        { }
+        {
+            this.children = new List<Node>();
+        }
 
         /// <summary>
         /// Clones the node, and all of it's children.
@@ -110,9 +112,7 @@ namespace CS_Project.Game
             var toReturn = new Node((Hash)this.hash.Clone(), this.index, this.won, this.lost);
             
             foreach(var child in this.children)
-            {
                 toReturn.children.Add((Node)child.Clone());
-            }
 
             return toReturn;
         }
