@@ -29,4 +29,15 @@ namespace CS_Project.Game
         /// </summary>
         public Controller oCon { get; set; }
     }
+
+    /// <summary>
+    /// The message that is sent whenever the player chooses where to place his piece.
+    /// </summary>
+    public sealed class PlayerPlaceMessage : Message
+    {
+        /// <summary>
+        /// The index of the slot that the player wants to place their slot in.
+        /// </summary>
+        public int index { get; set; }
+    }
 }

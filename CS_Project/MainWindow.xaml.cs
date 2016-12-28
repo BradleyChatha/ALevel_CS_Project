@@ -16,6 +16,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 
 using CS_Project.Game;
+using CS_Project.Game.Controllers;
 
 namespace CS_Project
 {
@@ -31,8 +32,73 @@ namespace CS_Project
     public partial class MainWindow : Window
     {
         private Thread                  _gameThread;
+        private Label[]                 _slots;    // The labels that represent the slots on the board.
         public ConcurrentQueue<Message> gameQueue; // Used so the gui thread can talk to the game thread.
 
+        public MainWindow()
+        {
+            // Setup multi-threaded stuff.
+            InitializeComponent();
+            this.gameQueue   = new ConcurrentQueue<Message>();
+            this._gameThread = new Thread(gameThreadMain);
+            this._gameThread.Start();
+
+            // Setup events
+            base.Closed += MainWindow_Closed;
+
+            // Setup the slots.
+            this._slots = new Label[] { slot0, slot1, slot2,
+                                        slot3, slot4, slot5,
+                                        slot6, slot7, slot8 };
+            foreach(var slot in this._slots)
+                slot.MouseLeftButtonUp += onSlotPress;
+
+            this.gameQueue.Enqueue(new StartMatchMessage
+                                  {
+                                      xCon = new PlayerGUIController(this),
+                                      oCon = new PlayerGUIController(this)
+                                  });
+        }
+
+        private void MainWindow_Closed(object sender, EventArgs e)
+        {
+            this._gameThread.Abort();
+        }
+
+        private void onSlotPress(object sender, MouseEventArgs e)
+        {
+            // Only labels should be using this
+            var label = sender as Label;
+
+            // The last character of the labels is an index.
+            var index = int.Parse(label.Name.Last().ToString());
+
+            this.gameQueue.Enqueue(new PlayerPlaceMessage { index = index });
+        }
+
+        /// <summary>
+        /// Updates the game board to reflect the given hash.
+        /// </summary>
+        /// <param name="hash">The 'Hash' containing the state of the board.</param>
+        public void updateBoard(Hash hash)
+        {
+            var myChar    = (hash.myPiece    == Board.Piece.x) ? "X" : "O";
+            var otherChar = (hash.otherPiece == Board.Piece.x) ? "X" : "O";
+
+            for (var i = 0; i < this._slots.Length; i++)
+            {
+                var slot = this._slots[i];
+
+                if(hash.isMyPiece(i))  slot.Content = myChar;
+                if(!hash.isMyPiece(i)) slot.Content = otherChar;
+                if(hash.isEmpty(i))    slot.Content = "";
+            }
+        }
+    }
+
+    // This part of the partial MainWindow class is for anything ran on the Game thread.
+    public partial class MainWindow : Window
+    {
         private void gameThreadMain()
         {
             // All variables for the game thread should be kept inside this function.
@@ -41,39 +107,26 @@ namespace CS_Project
             var board = new Board();
             var state = GameState.Waiting;
 
-            while(true)
+            while (true)
             {
                 // If no match is being done, listen to the message queue for things.
-                if(state == GameState.Waiting)
+                if (state == GameState.Waiting)
                 {
+                    // Check for a message every 0.5 seconds.
                     Message msg;
-                    while(!this.gameQueue.TryDequeue(out msg))
+                    while (!this.gameQueue.TryDequeue(out msg))
                         Thread.Sleep(500);
 
-                    if(msg is StartMatchMessage)
+                    // If we get a StartMatchMessage, then perform a match.
+                    if (msg is StartMatchMessage)
                     {
                         var info = msg as StartMatchMessage;
-                        state    = GameState.DoingMatch;
+                        state = GameState.DoingMatch;
                         board.startMatch(info.xCon, info.oCon);
-                        state    = GameState.Waiting;
+                        state = GameState.Waiting;
                     }
                 }
             }
-        }
-
-        public MainWindow()
-        {
-            InitializeComponent();
-            this.gameQueue   = new ConcurrentQueue<Message>();
-            this._gameThread = new Thread(gameThreadMain);
-            this._gameThread.Start();
-
-            base.Closed += MainWindow_Closed;
-        }
-
-        private void MainWindow_Closed(object sender, EventArgs e)
-        {
-            this._gameThread.Abort();
         }
     }
 }

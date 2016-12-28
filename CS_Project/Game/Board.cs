@@ -141,6 +141,10 @@ namespace CS_Project.Game
                 #endregion
 
                 wonPiece = this.checkForWin();
+                if(turnPiece == Piece.x)
+                    turnPiece = Piece.o;
+                else
+                    turnPiece = Piece.x;
             }
             #endregion
             Debug.Assert(wonPiece != Piece.empty, "The wonPiece is still Piece.empty");
@@ -181,7 +185,7 @@ namespace CS_Project.Game
             Debug.Assert(this.isCurrentController(controller), 
                          "Something's gone wrong somewhere. An incorrect controller is being used.");
             Debug.Assert(index < Board.pieceCount && index >= 0, 
-                         "Please use Board.pieceCount to properly limit the index.");
+                         $"Please use Board.pieceCount to properly limit the index. Index = {index}");
             Debug.Assert((this._flags & Flags.HasSetPiece) == 0,
                          "A controller has attempted to place its piece twice. This is a bug.");
             Debug.Assert(this._board[index] == Piece.empty,
