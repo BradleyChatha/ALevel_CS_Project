@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:CS_Project"
         mc:Ignorable="d"
-        Title="CS Project" Height="372.417" Width="369" ResizeMode="NoResize">
+        Title="CS Project" Height="444.417" Width="455" ResizeMode="NoResize">
     <Window.Resources>
         <Style TargetType="Label"
                BasedOn="{StaticResource {x:Type Label}}"
@@ -56,6 +56,14 @@
             <Label x:Name="slot8" Content="" HorizontalAlignment="Stretch" Margin="0,0,0,0" VerticalAlignment="Stretch"
                    Grid.Column="2" Grid.Row="2" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
         </Grid>
+        <Label x:Name="userPieceLabel" Content="[User's piece here]" 
+               HorizontalAlignment="Stretch" Margin="32,10,31,0" VerticalAlignment="Top" HorizontalContentAlignment="Center"
+               FontSize="24" FontFamily="Lucida Console" FontWeight="Bold"
+               Background="{x:Null}" Foreground="#FF781313" BorderBrush="#FF641111" />
+        <Label x:Name="turnLabel" Content="[Who's Turn Here]" 
+               HorizontalAlignment="Stretch" Margin="0,371,0,0" VerticalAlignment="Top" HorizontalContentAlignment="Center"
+               FontSize="24" FontFamily="Lucida Console" FontWeight="Bold"
+               Background="{x:Null}" Foreground="#FF5F871A" BorderBrush="#FF641111" />
 
     </Grid>
 </Window>

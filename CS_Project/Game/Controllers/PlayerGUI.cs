@@ -11,6 +11,15 @@ namespace CS_Project.Game.Controllers
     {
         private MainWindow _window { get; set; }
 
+        private void updateGUI(Hash boardState, Board.Piece turn)
+        {
+            this._window.Dispatcher.Invoke(() =>
+            {
+                this._window.updateBoard(boardState);
+                this._window.turnLabel.Content = $"It is {turn}'s turn";
+            });
+        }
+
         /// <summary>
         /// Constructor for the controller.
         /// </summary>
@@ -20,22 +29,34 @@ namespace CS_Project.Game.Controllers
             this._window = window;
         }
 
+        public override void onMatchEnd(MatchResult result)
+        {
+            string message    = "";
+            var    enemyPiece = (this.piece == Board.Piece.x) ? Board.Piece.o : Board.Piece.x;
+
+                 if(result == MatchResult.Won)  message = $"You ({this.piece}) have won!";
+            else if(result == MatchResult.Lost) message = $"The enemy ({enemyPiece}) has won!";
+            else if(result == MatchResult.Tied) message = "It's a tie! No one wins.";
+            else                                message = "[Unknown result]";
+
+            this._window.Dispatcher.Invoke(() => 
+            {
+                this._window.turnLabel.Content = message;
+            });
+
+            base.onMatchEnd(result);
+        }
+
         public override void onAfterTurn(Hash boardState)
         {
             // After the player has done their turn, update the GUI
-            this._window.Dispatcher.Invoke(() => 
-            {
-                this._window.updateBoard(boardState);
-            });
+            this.updateGUI(boardState, (this.piece == Board.Piece.o) ? Board.Piece.x : Board.Piece.o);
         }
 
         public override void onDoTurn(Hash boardState, int index)
         {
             // Update the GUI to display the opponent's last move.
-            this._window.Dispatcher.Invoke(() =>
-            {
-                this._window.updateBoard(boardState);
-            });
+            this.updateGUI(boardState, this.piece);
 
             // Wait for the GUI to have signaled that the player has made a move.
             Message msg;
