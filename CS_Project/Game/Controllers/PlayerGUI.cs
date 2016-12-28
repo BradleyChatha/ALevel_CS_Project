@@ -55,6 +55,9 @@ namespace CS_Project.Game.Controllers
                 }
 
                 var info = msg as PlayerPlaceMessage;
+                if(!boardState.isEmpty(info.index))
+                    continue;
+
                 this.board.set(info.index, this);
                 break;
             }
