@@ -7,6 +7,27 @@ using System.Threading.Tasks;
 namespace CS_Project.Game.Controllers
 {
     /// <summary>
+    /// Contains the result of a match.
+    /// </summary>
+    public enum MatchResult
+    {
+        /// <summary>
+        /// The controller won the match.
+        /// </summary>
+        Won,
+        
+        /// <summary>
+        /// The controller lost the match.
+        /// </summary>
+        Lost,
+
+        /// <summary>
+        /// The controller tied with the other one.
+        /// </summary>
+        Tied
+    }
+
+    /// <summary>
     /// The base class for any class that can control the game board.
     /// </summary>
     public abstract class Controller
@@ -37,8 +58,8 @@ namespace CS_Project.Game.Controllers
         /// 
         /// Notes for inheriting classes: Call 'super.onMatchEnd' only at the end of the function.
         /// </summary>
-        /// <param name="didIWin">'true' if this controller won. 'false' if the other controller won.</param>
-        public virtual void onMatchEnd(bool didIWin)
+        /// <param name="result">Contains the match result.</param>
+        public virtual void onMatchEnd(MatchResult result)
         {
             this.board = null;
             this.piece = Board.Piece.empty;

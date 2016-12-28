@@ -53,7 +53,7 @@ namespace CS_Project.Game
             return hash;
         }
 
-        private Piece checkForWin()
+        private Piece checkForWin(out bool isTie)
         {
             Func<uint, uint, uint, Piece, bool> check = null;
             check = delegate(uint i1, uint i2, uint i3, Piece p)
@@ -62,6 +62,8 @@ namespace CS_Project.Game
                     && this._board[i2] == p
                     && this._board[i3] == p;
             };
+
+            isTie = false;
 
             var pieces = new Piece[]{ Board.Piece.x, Board.Piece.o };
             foreach(var piece in pieces)
@@ -75,6 +77,9 @@ namespace CS_Project.Game
                 if (check(1, 4, 7, piece)) return piece; // Top middle to bottom middle, and vice-versa
                 if (check(2, 5, 8, piece)) return piece; // Top right to bottom right, and vice-versa
             }
+            
+            var emptyCount = this._board.Count(p => p == Piece.empty);
+            isTie          = (emptyCount == 0);
 
             return Piece.empty;
         }
@@ -118,7 +123,8 @@ namespace CS_Project.Game
             #region Match turn logic
             Board.Piece turnPiece = Piece.o;     // The piece of who's turn it is.
             Board.Piece wonPiece  = Piece.empty; // The piece of who's won. Empty for no win.
-            while(wonPiece == Piece.empty)
+            bool isTie            = false;
+            while (wonPiece == Piece.empty && !isTie)
             {
                 // Unset some flags
                 this._flags &= ~Flags.HasSetPiece;
@@ -140,25 +146,32 @@ namespace CS_Project.Game
                 controller.onAfterTurn(hash);
                 #endregion
 
-                wonPiece = this.checkForWin();
+                #region Misc stuff
+                wonPiece = this.checkForWin(out isTie);
                 if(turnPiece == Piece.x)
                     turnPiece = Piece.o;
                 else
                     turnPiece = Piece.x;
+                #endregion
             }
             #endregion
-            Debug.Assert(wonPiece != Piece.empty, "The wonPiece is still Piece.empty");
+            Debug.Assert(wonPiece != Piece.empty || isTie, "There was no win condition, but the loop still ended.");
 
             #region Process the win
-            if (wonPiece == Piece.o)
+            if(isTie)
             {
-                xCon.onMatchEnd(false);
-                oCon.onMatchEnd(true);
+                xCon.onMatchEnd(MatchResult.Tied);
+                oCon.onMatchEnd(MatchResult.Tied);
+            }
+            else if (wonPiece == Piece.o)
+            {
+                xCon.onMatchEnd(MatchResult.Lost);
+                oCon.onMatchEnd(MatchResult.Won);
             }
             else
             {
-                xCon.onMatchEnd(true);
-                oCon.onMatchEnd(false);
+                xCon.onMatchEnd(MatchResult.Won);
+                oCon.onMatchEnd(MatchResult.Lost);
             }
             #endregion
 
