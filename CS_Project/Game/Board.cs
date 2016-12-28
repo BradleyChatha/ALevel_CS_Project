@@ -2,9 +2,8 @@
 using System.Diagnostics;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.IO;
+using CS_Project.Game.Controllers;
 
 /// <summary>
 /// Contains everything related to the game board.
@@ -14,13 +13,200 @@ namespace CS_Project.Game
     /// <summary>
     /// Contains the state of the game board, and provides an interface to manipulate it.
     /// </summary>
-    public class Board
+    public partial class Board
     {
         /// <summary>
         /// The amount of pieces used on the board.
         /// </summary>
         public const uint pieceCount = 3*3;
 
+        private const uint _xIndex = 0; // Index in _board for the x player
+        private const uint _oIndex = 1; // Index in _board for the o player
+
+        private Board.Piece[] _board        { get; set; } // Current state of the Board.
+        private Board.Flags   _flags        { get; set; }
+        private Board.Stage   _stage        { get; set; }
+        private Controller    _current      { get; set; } // The Controller who currently has control of the board.
+        private int           _lastIndex    { get; set; } // The last index used to place a piece
+
+        [Flags]
+        private enum Flags : byte
+        {
+            HasSetPiece = 1 << 0 // Flag for whether the current controller has set its piece. Used to check for correctness
+        }
+
+        private enum Stage
+        {
+            Initialisation,
+            InControllerTurn,    // The board is waiting for a controller to perform it's turn.
+            AfterControllerTurn, // The controller has just made its turn.
+            NoMatch
+        }
+
+        private Hash createHashFor(Board.Piece piece)
+        {
+            var hash = new Hash(piece);
+
+            for(var i = 0; i < this._board.Length; i++)
+                hash.setPiece(this._board[i], i);
+
+            return hash;
+        }
+
+        private Piece checkForWin()
+        {
+            Func<uint, uint, uint, Piece, bool> check = null;
+            check = delegate(uint i1, uint i2, uint i3, Piece p)
+            {
+                return this._board[i1] == p
+                    && this._board[i2] == p
+                    && this._board[i3] == p;
+            };
+
+            var pieces = new Piece[]{ Board.Piece.x, Board.Piece.o };
+            foreach(var piece in pieces)
+            {
+                if (check(0, 1, 2, piece)) return piece; // Top row
+                if (check(3, 4, 5, piece)) return piece; // Middle row
+                if (check(6, 7, 8, piece)) return piece; // Bottom row
+                if (check(0, 4, 8, piece)) return piece; // Top left to bottom right, and vice-versa
+                if (check(2, 4, 6, piece)) return piece; // Top right to bottom left, and vice-versa
+                if (check(0, 3, 6, piece)) return piece; // Top left to bottom left, and vice-versa
+                if (check(1, 4, 7, piece)) return piece; // Top middle to bottom middle, and vice-versa
+                if (check(3, 5, 8, piece)) return piece; // Top right to bottom right, and vice-versa
+            }
+
+            return Piece.empty;
+        }
+
+        /// <summary>
+        /// Default constructor for a board.
+        /// </summary>  
+        public Board()
+        {
+            this._stage = Stage.NoMatch;
+            this._board = new Board.Piece[Board.pieceCount];
+
+            for(var i = 0; i < this._board.Length; i++)
+                this._board[i] = Piece.empty;
+        }
+
+        /// <summary>
+        /// Starts a match between two controllers.
+        /// 
+        /// Note to self: Run all of this stuff in a seperate thread, otherwise the GUI will freeze.
+        /// Use System.Collections.Concurrent.ConcurrentQueue to talk between the two threads.
+        /// </summary>
+        /// <param name="xCon">The controller for the X piece.</param>
+        /// <param name="oCon">The controller for the O piece.</param>
+        public void startMatch(Controller xCon, Controller oCon)
+        {
+            Debug.Assert(this._stage == Stage.NoMatch, "Attempted to start a match while another match is in progress.");
+
+            #region Setup controllers.
+            Debug.Assert(xCon != null, "The X controller is null.");
+            Debug.Assert(oCon != null, "The O controller is null.");
+            this._stage = Stage.Initialisation;
+
+            xCon.onMatchStart(this, Piece.x);
+            oCon.onMatchStart(this, Piece.o);
+
+            // Reset some stuff
+            this._lastIndex = int.MaxValue;
+            #endregion
+
+            #region Match turn logic
+            Board.Piece turnPiece = Piece.o;     // The piece of who's turn it is.
+            Board.Piece wonPiece  = Piece.empty; // The piece of who's won. Empty for no win.
+            while(wonPiece == Piece.empty)
+            {
+                // Unset some flags
+                this._flags &= ~Flags.HasSetPiece;
+
+                #region Do controller turn
+                this._stage     = Stage.InControllerTurn;
+                var hash        = this.createHashFor(turnPiece);
+                var controller  = (turnPiece == Piece.x) ? xCon : oCon;
+                this._current   = controller;
+                
+                controller.onDoTurn(hash, this._lastIndex);
+                Debug.Assert((this._flags & Flags.HasSetPiece) != 0, 
+                             $"The controller using the {turnPiece} piece didn't place a piece.");
+                #endregion
+
+                #region Do after controller turn
+                this._stage = Stage.AfterControllerTurn;
+                hash        = this.createHashFor(turnPiece);
+                controller.onAfterTurn(hash);
+                #endregion
+
+                wonPiece = this.checkForWin();
+            }
+            #endregion
+            Debug.Assert(wonPiece != Piece.empty, "The wonPiece is still Piece.empty");
+
+            #region Process the win
+            if (wonPiece == Piece.o)
+            {
+                xCon.onMatchEnd(false);
+                oCon.onMatchEnd(true);
+            }
+            else
+            {
+                xCon.onMatchEnd(true);
+                oCon.onMatchEnd(false);
+            }
+            #endregion
+
+            #region Reset variables
+            this._stage   = Stage.NoMatch;
+            this._current = null;
+
+            for (var i = 0; i < this._board.Length; i++)
+                this._board[i] = Piece.empty;
+            #endregion
+        }
+
+        /// <summary>
+        /// Sets a piece on the board.
+        /// </summary>
+        /// <param name="index">The index of where to place the piece.</param>
+        /// <param name="controller">The controller that's placing the piece.</param>
+        public void set(int index, Controller controller)
+        {
+            // There are so many ways to use this function wrong...
+            // But I need these checks here to make sure my code is correct.
+            Debug.Assert(this._stage == Stage.InControllerTurn,
+                         "A controller attempted to place its piece outside of its onDoTurn function.");
+            Debug.Assert(this.isCurrentController(controller), 
+                         "Something's gone wrong somewhere. An incorrect controller is being used.");
+            Debug.Assert(index < Board.pieceCount && index >= 0, 
+                         "Please use Board.pieceCount to properly limit the index.");
+            Debug.Assert((this._flags & Flags.HasSetPiece) == 0,
+                         "A controller has attempted to place its piece twice. This is a bug.");
+            Debug.Assert(this._board[index] == Piece.empty,
+                         "A controller attempted to place its piece over another piece. Enough information is passed to prevent this.");
+
+            this._board[index] = controller.piece;
+            this._lastIndex    = index;
+            this._flags       |= Flags.HasSetPiece;
+        }
+
+        /// <summary>
+        /// Determines if the given controller is the controller who's turn it currently is.
+        /// </summary>
+        /// <param name="controller">The controller to check.</param>
+        /// <returns>'true' if 'controller' is the controller's who's controlling the current turn.</returns>
+        public bool isCurrentController(Controller controller)
+        {
+            return (this._current == controller);
+        }
+    }
+
+    // This part of 'Board' is used for anything that should be accessed like "Board.Piece"
+    // Wheras the other part is for the actual board class.
+    public partial class Board
+    {
         /// <summary>
         /// Describes the different board pieces
         /// </summary>
