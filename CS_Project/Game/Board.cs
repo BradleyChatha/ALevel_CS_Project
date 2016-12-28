@@ -73,7 +73,7 @@ namespace CS_Project.Game
                 if (check(2, 4, 6, piece)) return piece; // Top right to bottom left, and vice-versa
                 if (check(0, 3, 6, piece)) return piece; // Top left to bottom left, and vice-versa
                 if (check(1, 4, 7, piece)) return piece; // Top middle to bottom middle, and vice-versa
-                if (check(3, 5, 8, piece)) return piece; // Top right to bottom right, and vice-versa
+                if (check(2, 5, 8, piece)) return piece; // Top right to bottom right, and vice-versa
             }
 
             return Piece.empty;
