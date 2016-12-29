@@ -72,7 +72,7 @@ namespace CS_Project.Game
         {
             get
             {
-                return new Node(new Hash(Board.Piece.x, "........."), uint.MaxValue);
+                return new Node(new Hash(Board.Piece.X, "........."), uint.MaxValue);
             }
         }
 

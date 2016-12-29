@@ -82,8 +82,8 @@ namespace CS_Project
         /// <param name="hash">The 'Hash' containing the state of the board.</param>
         public void updateBoard(Hash hash)
         {
-            var myChar    = (hash.myPiece    == Board.Piece.x) ? "X" : "O";
-            var otherChar = (hash.otherPiece == Board.Piece.x) ? "X" : "O";
+            var myChar    = (hash.myPiece    == Board.Piece.X) ? "X" : "O";
+            var otherChar = (hash.otherPiece == Board.Piece.X) ? "X" : "O";
 
             for (var i = 0; i < this._slots.Length; i++)
             {

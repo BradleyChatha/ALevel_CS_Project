@@ -65,7 +65,7 @@ namespace CS_Project.Game
 
             isTie = false;
 
-            var pieces = new Piece[]{ Board.Piece.x, Board.Piece.o };
+            var pieces = new Piece[]{ Board.Piece.X, Board.Piece.O };
             foreach(var piece in pieces)
             {
                 if (check(0, 1, 2, piece)) return piece; // Top row
@@ -78,10 +78,10 @@ namespace CS_Project.Game
                 if (check(2, 5, 8, piece)) return piece; // Top right to bottom right, and vice-versa
             }
             
-            var emptyCount = this._board.Count(p => p == Piece.empty);
+            var emptyCount = this._board.Count(p => p == Piece.Empty);
             isTie          = (emptyCount == 0);
 
-            return Piece.empty;
+            return Piece.Empty;
         }
 
         /// <summary>
@@ -93,7 +93,7 @@ namespace CS_Project.Game
             this._board = new Board.Piece[Board.pieceCount];
 
             for(var i = 0; i < this._board.Length; i++)
-                this._board[i] = Piece.empty;
+                this._board[i] = Piece.Empty;
         }
 
         /// <summary>
@@ -113,18 +113,18 @@ namespace CS_Project.Game
             Debug.Assert(oCon != null, "The O controller is null.");
             this._stage = Stage.Initialisation;
 
-            xCon.onMatchStart(this, Piece.x);
-            oCon.onMatchStart(this, Piece.o);
+            xCon.onMatchStart(this, Piece.X);
+            oCon.onMatchStart(this, Piece.O);
 
             // Reset some stuff
             this._lastIndex = int.MaxValue;
             #endregion
 
             #region Match turn logic
-            Board.Piece turnPiece = Piece.o;     // The piece of who's turn it is.
-            Board.Piece wonPiece  = Piece.empty; // The piece of who's won. Empty for no win.
+            Board.Piece turnPiece = Piece.O;     // The piece of who's turn it is.
+            Board.Piece wonPiece  = Piece.Empty; // The piece of who's won. Empty for no win.
             bool isTie            = false;
-            while (wonPiece == Piece.empty && !isTie)
+            while (wonPiece == Piece.Empty && !isTie)
             {
                 // Unset some flags
                 this._flags &= ~Flags.HasSetPiece;
@@ -132,7 +132,7 @@ namespace CS_Project.Game
                 #region Do controller turn
                 this._stage     = Stage.InControllerTurn;
                 var hash        = this.createHashFor(turnPiece);
-                var controller  = (turnPiece == Piece.x) ? xCon : oCon;
+                var controller  = (turnPiece == Piece.X) ? xCon : oCon;
                 this._current   = controller;
                 
                 controller.onDoTurn(hash, this._lastIndex);
@@ -148,14 +148,14 @@ namespace CS_Project.Game
 
                 #region Misc stuff
                 wonPiece = this.checkForWin(out isTie);
-                if(turnPiece == Piece.x)
-                    turnPiece = Piece.o;
+                if(turnPiece == Piece.X)
+                    turnPiece = Piece.O;
                 else
-                    turnPiece = Piece.x;
+                    turnPiece = Piece.X;
                 #endregion
             }
             #endregion
-            Debug.Assert(wonPiece != Piece.empty || isTie, "There was no win condition, but the loop still ended.");
+            Debug.Assert(wonPiece != Piece.Empty || isTie, "There was no win condition, but the loop still ended.");
 
             #region Process the win
             if(isTie)
@@ -163,7 +163,7 @@ namespace CS_Project.Game
                 xCon.onMatchEnd(MatchResult.Tied);
                 oCon.onMatchEnd(MatchResult.Tied);
             }
-            else if (wonPiece == Piece.o)
+            else if (wonPiece == Piece.O)
             {
                 xCon.onMatchEnd(MatchResult.Lost);
                 oCon.onMatchEnd(MatchResult.Won);
@@ -180,7 +180,7 @@ namespace CS_Project.Game
             this._current = null;
 
             for (var i = 0; i < this._board.Length; i++)
-                this._board[i] = Piece.empty;
+                this._board[i] = Piece.Empty;
             #endregion
         }
 
@@ -201,7 +201,7 @@ namespace CS_Project.Game
                          $"Please use Board.pieceCount to properly limit the index. Index = {index}");
             Debug.Assert((this._flags & Flags.HasSetPiece) == 0,
                          "A controller has attempted to place its piece twice. This is a bug.");
-            Debug.Assert(this._board[index] == Piece.empty,
+            Debug.Assert(this._board[index] == Piece.Empty,
                          "A controller attempted to place its piece over another piece. Enough information is passed to prevent this.");
 
             this._board[index] = controller.piece;
@@ -232,17 +232,17 @@ namespace CS_Project.Game
             /// <summary>
             /// The X piece
             /// </summary>
-            x,
+            X,
 
             /// <summary>
             /// The O piece
             /// </summary>
-            o,
+            O,
 
             /// <summary>
             /// An empty board piece
             /// </summary>
-            empty
+            Empty
         }
     }
 
@@ -280,12 +280,12 @@ namespace CS_Project.Game
 
         private Hash(Board.Piece myPiece, bool dummyParam)
         {
-            if (myPiece == Board.Piece.empty)
+            if (myPiece == Board.Piece.Empty)
                 throw new HashException("myPiece must not be Board.Piece.empty");
 
             this.myPiece    = myPiece;
-            this.otherPiece = (myPiece == Board.Piece.o) ? Board.Piece.x
-                                                         : Board.Piece.o;
+            this.otherPiece = (myPiece == Board.Piece.O) ? Board.Piece.X
+                                                         : Board.Piece.O;
         }
 
         /// <summary>
@@ -293,7 +293,7 @@ namespace CS_Project.Game
         /// 
         /// Note that the 'myPiece' for the hash will be 'Board.Piece.x'
         /// </summary>
-        public Hash() : this(Board.Piece.x)
+        public Hash() : this(Board.Piece.X)
         { }
 
         /// <summary>
@@ -364,12 +364,12 @@ namespace CS_Project.Game
         /// <returns>The board piece at 'index'</returns>
         public Board.Piece getPiece(int index)
         {
-            Board.Piece piece   = Board.Piece.empty;
+            Board.Piece piece   = Board.Piece.Empty;
             var pieceChar       = this.getPieceChar(index);
 
             switch(pieceChar)
             {
-                case Hash.emptyChar: piece = Board.Piece.empty; break;
+                case Hash.emptyChar: piece = Board.Piece.Empty; break;
                 case Hash.myChar:    piece = this.myPiece;      break;
                 case Hash.otherChar: piece = this.otherPiece;   break;
 

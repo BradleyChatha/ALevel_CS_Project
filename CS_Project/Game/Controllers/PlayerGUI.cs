@@ -42,7 +42,7 @@ namespace CS_Project.Game.Controllers
         public override void onMatchEnd(MatchResult result)
         {
             string message    = "";
-            var    enemyPiece = (this.piece == Board.Piece.x) ? Board.Piece.o : Board.Piece.x;
+            var    enemyPiece = (this.piece == Board.Piece.X) ? Board.Piece.O : Board.Piece.X;
 
                  if(result == MatchResult.Won)  message = $"You ({this.piece}) have won!";
             else if(result == MatchResult.Lost) message = $"The enemy ({enemyPiece}) has won!";
@@ -60,7 +60,7 @@ namespace CS_Project.Game.Controllers
         public override void onAfterTurn(Hash boardState)
         {
             // After the player has done their turn, update the GUI
-            this.updateGUI(boardState, (this.piece == Board.Piece.o) ? Board.Piece.x : Board.Piece.o);
+            this.updateGUI(boardState, (this.piece == Board.Piece.O) ? Board.Piece.X : Board.Piece.O);
         }
 
         public override void onDoTurn(Hash boardState, int index)

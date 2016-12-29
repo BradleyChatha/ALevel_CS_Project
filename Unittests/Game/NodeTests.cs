@@ -11,7 +11,7 @@ namespace CS_Project.Game.Tests
         {
             var m = Hash.myChar;
             var o = Hash.otherChar;
-            var p = Board.Piece.x;
+            var p = Board.Piece.X;
 
             var root = Node.root;
             root.children.AddRange(new Node[] 
@@ -63,10 +63,10 @@ namespace CS_Project.Game.Tests
                     var root = Node.root;
                     root.children.AddRange(new Node[]
                                           {
-                                              new Node(new Hash(Board.Piece.x, $"{m}........"), 0, 3, 5),
-                                              new Node(new Hash(Board.Piece.x, $".{m}......."), 1, 1, 4)
+                                              new Node(new Hash(Board.Piece.X, $"{m}........"), 0, 3, 5),
+                                              new Node(new Hash(Board.Piece.X, $".{m}......."), 1, 1, 4)
                                           });
-                    root.children[0].children.Add(new Node(new Hash(Board.Piece.o, $"{m}{o}......."), 1, 2, 3));
+                    root.children[0].children.Add(new Node(new Hash(Board.Piece.O, $"{m}{o}......."), 1, 2, 3));
 
                     root.serialise(writer);
                 }
@@ -80,19 +80,19 @@ namespace CS_Project.Game.Tests
                     root.deserialise(reader);
 
                     var n = root.children[0]; // Current node we're asserting
-                    Assert.AreEqual(new Hash(Board.Piece.x, $"{m}........"), n.hash);
+                    Assert.AreEqual(new Hash(Board.Piece.X, $"{m}........"), n.hash);
                     Assert.AreEqual(0u,                                      n.index);
                     Assert.AreEqual(3u,                                      n.won);
                     Assert.AreEqual(5u,                                      n.lost);
 
                     n = root.children[1];
-                    Assert.AreEqual(new Hash(Board.Piece.x, $".{m}......."), n.hash);
+                    Assert.AreEqual(new Hash(Board.Piece.X, $".{m}......."), n.hash);
                     Assert.AreEqual(1u,                                      n.index);
                     Assert.AreEqual(1u,                                      n.won);
                     Assert.AreEqual(4u,                                      n.lost);
 
                     n = root.children[0].children[0];
-                    Assert.AreEqual(new Hash(Board.Piece.o, $"{m}{o}......."), n.hash);
+                    Assert.AreEqual(new Hash(Board.Piece.O, $"{m}{o}......."), n.hash);
                     Assert.AreEqual(1u,                                        n.index);
                     Assert.AreEqual(2u,                                        n.won);
                     Assert.AreEqual(3u,                                        n.lost);

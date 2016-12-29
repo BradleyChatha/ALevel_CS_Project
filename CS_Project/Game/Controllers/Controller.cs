@@ -62,7 +62,7 @@ namespace CS_Project.Game.Controllers
         public virtual void onMatchEnd(MatchResult result)
         {
             this.board = null;
-            this.piece = Board.Piece.empty;
+            this.piece = Board.Piece.Empty;
         }
 
         /// <summary>

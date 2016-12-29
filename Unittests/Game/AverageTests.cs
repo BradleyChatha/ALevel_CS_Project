@@ -16,7 +16,7 @@ namespace CS_Project.Game.Tests
         {
             var m    = Hash.myChar;
             var o    = Hash.otherChar;
-            var p    = Board.Piece.x;
+            var p    = Board.Piece.X;
             var root = Node.root;
             root.children.AddRange(new Node[] 
                                        {
