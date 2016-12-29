@@ -11,6 +11,12 @@
                BasedOn="{StaticResource {x:Type Label}}"
                x:Name="SlotLabel">
             <Setter Property="FontSize" Value="48"/>
+
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#68686868" />
+                </Trigger>
+            </Style.Triggers>
         </Style>
     </Window.Resources>
 
@@ -57,13 +63,13 @@
                    Grid.Column="2" Grid.Row="2" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
         </Grid>
         <Label x:Name="userPieceLabel" Content="[User's piece here]" 
-               HorizontalAlignment="Stretch" Margin="32,10,31,0" VerticalAlignment="Top" HorizontalContentAlignment="Center"
+               HorizontalAlignment="Stretch" Margin="0,10,0,0" VerticalAlignment="Top" HorizontalContentAlignment="Center"
                FontSize="24" FontFamily="Lucida Console" FontWeight="Bold"
-               Background="{x:Null}" Foreground="#FF781313" BorderBrush="#FF641111" />
+               Foreground="#FF781313" Style="{x:Null}"/>
         <Label x:Name="turnLabel" Content="[Who's Turn Here]" 
                HorizontalAlignment="Stretch" Margin="0,371,0,0" VerticalAlignment="Top" HorizontalContentAlignment="Center"
                FontSize="24" FontFamily="Lucida Console" FontWeight="Bold"
-               Background="{x:Null}" Foreground="#FF5F871A" BorderBrush="#FF641111" />
+               Foreground="#FF5F871A" Style="{x:Null}" />
 
     </Grid>
 </Window>
