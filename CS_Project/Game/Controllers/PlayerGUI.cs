@@ -29,6 +29,16 @@ namespace CS_Project.Game.Controllers
             this._window = window;
         }
 
+        public override void onMatchStart(Board board, Board.Piece myPiece)
+        {
+            base.onMatchStart(board, myPiece);
+
+            this._window.Dispatcher.Invoke(() => 
+            {
+                this._window.userPieceLabel.Content = $"[You are {myPiece}]";
+            });
+        }
+
         public override void onMatchEnd(MatchResult result)
         {
             string message    = "";
