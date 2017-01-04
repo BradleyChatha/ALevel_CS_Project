@@ -167,6 +167,16 @@ namespace CS_Project.Game
 
         public void serialise(BinaryWriter output)
         {
+            /*
+             * Format of a serialised Node:
+             *  [Serialised Hash of the Node]
+             *  [4 bytes, Node.index]
+             *  [4 bytes, Node.won]
+             *  [4 bytes, Node.lost]
+             *  [1 byte,  Node.children.count]
+             *      [All of the nodes children are then serialised.]
+             * */
+
             Debug.Assert(this.children.Count <= byte.MaxValue, "For some reason, this Node has over 255 children e_e?");
 
             this.hash.serialise(output);
@@ -216,7 +226,7 @@ namespace CS_Project.Game
         {
             get
             {
-                if(this.path.Count == 0)
+                if(this.path.Count == 0) // Avoid divide-by-zero errors
                     return 0;
 
                 float totalPercent = 0;
@@ -241,6 +251,10 @@ namespace CS_Project.Game
         /// <returns>An 'Average' containing the path with the highest win percent.</returns>
         public static Average statisticallyBest(Node root)
         {
+            // In simple terms:
+            // This function will go over every possible path in 'root', and return the one that has
+            // the statistically best chance to win.
+
             var path = new Average();
             var best = new Average();
 
@@ -260,7 +274,7 @@ namespace CS_Project.Game
                     foreach(var child in node.children)
                     {
                         walk(child, false);
-                        path.path.RemoveAt(path.path.Count - 1); // Shrink the list by 1 once its done
+                        path.path.RemoveAt(path.path.Count - 1); // Shrink the list by 1 once its done, so we don't have to create a new list.
                     }
                 }
 

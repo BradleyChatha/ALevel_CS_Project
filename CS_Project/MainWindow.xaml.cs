@@ -53,6 +53,7 @@ namespace CS_Project
             foreach(var slot in this._slots)
                 slot.MouseLeftButtonUp += onSlotPress;
 
+            // TEMPORARY: Tell the game UI to start a match between 2 players.
             this.gameQueue.Enqueue(new StartMatchMessage
                                   {
                                       xCon = new PlayerGUIController(this),
@@ -60,11 +61,14 @@ namespace CS_Project
                                   });
         }
 
+        // If we don't abort the game thread, then the program will stay alive in the background.
         private void MainWindow_Closed(object sender, EventArgs e)
         {
             this._gameThread.Abort();
         }
 
+        // When one of the slots are pressed, send a PlayerPlaceMessage to the game thread, saying
+        // which slot was pressed.
         private void onSlotPress(object sender, MouseEventArgs e)
         {
             // Only labels should be using this
@@ -125,6 +129,8 @@ namespace CS_Project
                         board.startMatch(info.xCon, info.oCon);
                         state = GameState.Waiting;
                     }
+                    else // Otherwise, requeue it
+                        this.gameQueue.Enqueue(msg);
                 }
             }
         }

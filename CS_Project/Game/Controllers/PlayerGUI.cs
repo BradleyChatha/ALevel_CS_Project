@@ -11,6 +11,11 @@ namespace CS_Project.Game.Controllers
     {
         private MainWindow _window { get; set; }
 
+        /// <summary>
+        /// Updates the GUI to reflect the new state of the board.
+        /// </summary>
+        /// <param name="boardState">The new state of the baord.</param>
+        /// <param name="turn">Who's turn it currently is.</param>
         private void updateGUI(Hash boardState, Board.Piece turn)
         {
             this._window.Dispatcher.Invoke(() =>
@@ -33,6 +38,7 @@ namespace CS_Project.Game.Controllers
         {
             base.onMatchStart(board, myPiece);
 
+            // When the match starts, tell the player which piece they're using.
             this._window.Dispatcher.Invoke(() => 
             {
                 this._window.userPieceLabel.Content = $"[You are {myPiece}]";
@@ -41,6 +47,7 @@ namespace CS_Project.Game.Controllers
 
         public override void onMatchEnd(MatchResult result)
         {
+            // One the match has ended, figure out who won, and generate the appropriate win message.
             string message    = "";
             var    enemyPiece = (this.piece == Board.Piece.X) ? Board.Piece.O : Board.Piece.X;
 
@@ -49,6 +56,7 @@ namespace CS_Project.Game.Controllers
             else if(result == MatchResult.Tied) message = "It's a tie! No one wins.";
             else                                message = "[Unknown result]";
 
+            // Then update the GUI to display who's won.
             this._window.Dispatcher.Invoke(() => 
             {
                 this._window.turnLabel.Content = message;
@@ -59,19 +67,21 @@ namespace CS_Project.Game.Controllers
 
         public override void onAfterTurn(Hash boardState)
         {
-            // After the player has done their turn, update the GUI
+            // After the player has done their turn, update the GUI to display it's the enemy's turn.
             this.updateGUI(boardState, (this.piece == Board.Piece.O) ? Board.Piece.X : Board.Piece.O);
         }
 
         public override void onDoTurn(Hash boardState, int index)
         {
-            // Update the GUI to display the opponent's last move.
+            // Update the GUI to display the opponent's last move, as well as to tell the user it's their turn.
             this.updateGUI(boardState, this.piece);
 
             // Wait for the GUI to have signaled that the player has made a move.
             Message msg;
             while(true)
             {
+                // Check every 50ms for a message.
+                // If we didn't use a sleep, then the CPU usage skyrockets.
                 if(!this._window.gameQueue.TryDequeue(out msg))
                 {
                     Thread.Sleep(50);
@@ -85,6 +95,7 @@ namespace CS_Project.Game.Controllers
                     continue;
                 }
 
+                // Otherwise, see if the placement is valid, and perform it.
                 var info = msg as PlayerPlaceMessage;
                 if(!boardState.isEmpty(info.index))
                     continue;
