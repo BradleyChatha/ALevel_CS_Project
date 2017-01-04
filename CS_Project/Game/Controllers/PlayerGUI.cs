@@ -16,7 +16,7 @@ namespace CS_Project.Game.Controllers
         /// </summary>
         /// <param name="boardState">The new state of the baord.</param>
         /// <param name="turn">Who's turn it currently is.</param>
-        private void updateGUI(Hash boardState, Board.Piece turn)
+        private void updateGUI(Board.Hash boardState, Board.Piece turn)
         {
             this._window.Dispatcher.Invoke(() =>
             {
@@ -65,13 +65,13 @@ namespace CS_Project.Game.Controllers
             base.onMatchEnd(result);
         }
 
-        public override void onAfterTurn(Hash boardState)
+        public override void onAfterTurn(Board.Hash boardState)
         {
             // After the player has done their turn, update the GUI to display it's the enemy's turn.
             this.updateGUI(boardState, (this.piece == Board.Piece.O) ? Board.Piece.X : Board.Piece.O);
         }
 
-        public override void onDoTurn(Hash boardState, int index)
+        public override void onDoTurn(Board.Hash boardState, int index)
         {
             // Update the GUI to display the opponent's last move, as well as to tell the user it's their turn.
             this.updateGUI(boardState, this.piece);

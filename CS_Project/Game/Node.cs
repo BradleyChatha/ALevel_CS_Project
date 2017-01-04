@@ -19,7 +19,7 @@ namespace CS_Project.Game
         /// <summary>
         /// The hash of the board after the move was made.
         /// </summary>
-        public Hash hash { private set; get; }
+        public Board.Hash hash { private set; get; }
 
         /// <summary>
         /// The index of what slot was changed this move.
@@ -72,19 +72,19 @@ namespace CS_Project.Game
         {
             get
             {
-                return new Node(new Hash(Board.Piece.X, "........."), uint.MaxValue);
+                return new Node(new Board.Hash(Board.Piece.X, "........."), uint.MaxValue);
             }
         }
 
         /// <summary>
         /// Creates a new Node
         /// </summary>
-        /// <param name="hash">The 'Hash' of the board after the move was made.</param>
+        /// <param name="hash">The 'Board.Hash' of the board after the move was made.</param>
         /// <param name="index">The index of the slot that was changed.</param>
         /// <param name="won">How many times this move was used in a won match.</param>
         /// <param name="lost">The opposite of 'won'.</param>
         /// <exception cref="System.ArgumentNullException">When `hash` is null.</exception>
-        public Node(Hash hash, uint index, uint won = 0, uint lost = 0)
+        public Node(Board.Hash hash, uint index, uint won = 0, uint lost = 0)
         {
             if (hash == null)
                 throw new ArgumentNullException("hash");
@@ -102,7 +102,7 @@ namespace CS_Project.Game
         public Node()
         {
             this.children = new List<Node>();
-            this.hash     = new Hash();
+            this.hash     = new Board.Hash();
         }
 
         /// <summary>
@@ -111,7 +111,7 @@ namespace CS_Project.Game
         /// <returns>A clone of this node.</returns>
         public object Clone()
         {
-            var toReturn = new Node((Hash)this.hash.Clone(), this.index, this.won, this.lost);
+            var toReturn = new Node((Board.Hash)this.hash.Clone(), this.index, this.won, this.lost);
             
             foreach(var child in this.children) 
                 toReturn.children.Add((Node)child.Clone());
@@ -129,7 +129,7 @@ namespace CS_Project.Game
         /// <param name="path">An enumeration of hashes, describing the path to walk.</param>
         /// <param name="depth">The maximum number of nodes to walk past.</param>
         /// <returns>The node at the end of the walked path. Or `null` if the entire path couldn't be walked through.</returns>
-        public Node walk(IList<Hash> path, uint depth = uint.MaxValue)
+        public Node walk(IList<Board.Hash> path, uint depth = uint.MaxValue)
         {
             if (path == null)
                 throw new ArgumentNullException("path");
@@ -169,7 +169,7 @@ namespace CS_Project.Game
         {
             /*
              * Format of a serialised Node:
-             *  [Serialised Hash of the Node]
+             *  [Serialised Board.Hash of the Node]
              *  [4 bytes, Node.index]
              *  [4 bytes, Node.won]
              *  [4 bytes, Node.lost]

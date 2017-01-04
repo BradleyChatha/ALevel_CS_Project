@@ -4,6 +4,8 @@ using System;
 using System.Linq;
 using System.IO;
 
+using Hash = CS_Project.Game.Board.Hash;
+
 namespace Unittests
 {
     [TestClass]

@@ -1,6 +1,8 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.IO;
 
+using Hash = CS_Project.Game.Board.Hash;
+
 namespace CS_Project.Game.Tests
 {
     [TestClass()]

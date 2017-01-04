@@ -6,6 +6,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using Hash = CS_Project.Game.Board.Hash;
+
 namespace CS_Project.Game.Tests
 {
     [TestClass()]

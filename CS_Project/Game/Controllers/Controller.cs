@@ -77,12 +77,12 @@ namespace CS_Project.Game.Controllers
         ///     The index of the last move the other controller made. 
         ///     If the other controller hasn't made a move yet, then this will be int.MaxValue
         /// </param>
-        public abstract void onDoTurn(Hash boardState, int index);
+        public abstract void onDoTurn(Board.Hash boardState, int index);
 
         /// <summary>
         /// Called after the controller has taken its turn.
         /// </summary>
         /// <param name="boardState">The state of the board after the controller's turn.</param>
-        public abstract void onAfterTurn(Hash boardState);
+        public abstract void onAfterTurn(Board.Hash boardState);
     }
 }

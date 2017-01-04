@@ -15,12 +15,12 @@ namespace CS_Project.Game.Tests
         {
             int last = 0;
 
-            public override void onAfterTurn(Hash boardState)
+            public override void onAfterTurn(Board.Hash boardState)
             {
                 Assert.IsTrue(boardState.isMyPiece(this.last));
             }
 
-            public override void onDoTurn(Hash boardState, int index)
+            public override void onDoTurn(Board.Hash boardState, int index)
             {
                 // Put a piece in any empty slot, that isn't on the first row.
                 for(var i = 3; i < Board.pieceCount; i++)
@@ -37,14 +37,14 @@ namespace CS_Project.Game.Tests
 
         class StupidController : Controller
         {
-            public override void onAfterTurn(Hash boardState)
+            public override void onAfterTurn(Board.Hash boardState)
             {
-                var str = boardState.ToString().Replace(Hash.otherChar, Hash.emptyChar);
+                var str = boardState.ToString().Replace(Board.Hash.otherChar, Board.Hash.emptyChar);
 
                 Assert.IsTrue(str == "M........" || str == "MM......." || str == "MMM......");
             }
 
-            public override void onDoTurn(Hash boardState, int index)
+            public override void onDoTurn(Board.Hash boardState, int index)
             {
                 for (var i = 0; i < 3; i++)
                 {

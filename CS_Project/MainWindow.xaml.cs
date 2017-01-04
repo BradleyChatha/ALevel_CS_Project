@@ -84,7 +84,7 @@ namespace CS_Project
         /// Updates the game board to reflect the given hash.
         /// </summary>
         /// <param name="hash">The 'Hash' containing the state of the board.</param>
-        public void updateBoard(Hash hash)
+        public void updateBoard(Board.Hash hash)
         {
             var myChar    = (hash.myPiece    == Board.Piece.X) ? "X" : "O";
             var otherChar = (hash.otherPiece == Board.Piece.X) ? "X" : "O";
