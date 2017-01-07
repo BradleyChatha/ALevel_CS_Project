@@ -43,6 +43,10 @@ namespace CS_Project.Game
             NoMatch
         }
 
+        /// <summary>
+        /// Creates a hash of the board, using a given piece as the "myPiece".
+        /// </summary>
+        /// <param name="piece">The piece that should be used as the "myPiece"</param>
         private Hash createHashFor(Board.Piece piece)
         {
             var hash = new Hash(piece);
@@ -53,6 +57,11 @@ namespace CS_Project.Game
             return hash;
         }
 
+        /// <summary>
+        /// Determines if anyone has won yet.
+        /// </summary>
+        /// <param name="isTie">Set to 'true' if there was a tie.</param>
+        /// <returns>The piece that won, or Piece.empty if no one has won yet.</returns>
         private Piece checkForWin(out bool isTie)
         {
             Func<uint, uint, uint, Piece, bool> check = null;
