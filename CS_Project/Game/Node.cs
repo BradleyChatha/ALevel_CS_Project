@@ -174,6 +174,46 @@ namespace CS_Project.Game
             return true;
         }
 
+        /// <summary>
+        /// Walks over every possible path in the node tree, and calls an action on each path.
+        /// </summary>
+        /// <param name="action">
+        /// The action to perform on every path. 
+        /// Note that the parameter given is not a copy of the original, so anytime the parameter is stored somewhere,
+        /// a copy should be created.
+        /// </param>
+        public void walkEveryPath(Action<List<Node>> action)
+        {
+            if(action == null)
+                throw new ArgumentNullException("action");
+
+            var path = new List<Node>();
+
+            Func<Node, bool, bool> walk = null;
+            walk = delegate (Node node, bool noAdd)
+            {
+                if (!noAdd) // Used so we don't add in the root node
+                    path.Add(node);
+
+                if (node.children.Count == 0)
+                {
+                    action(path);
+                }
+                else
+                {
+                    foreach (var child in node.children)
+                    {
+                        walk(child, false);
+                        path.RemoveAt(path.Count - 1); // Shrink the list by 1 once its done, so we don't have to create a new list.
+                    }
+                }
+
+                return false; // Dummy value
+            };
+
+            walk(this, true);
+        }
+
         public void serialise(BinaryWriter output)
         {
             /*
@@ -260,38 +300,17 @@ namespace CS_Project.Game
         /// <returns>An 'Average' containing the path with the highest win percent.</returns>
         public static Average statisticallyBest(Node root)
         {
-            // In simple terms:
-            // This function will go over every possible path in 'root', and return the one that has
-            // the statistically best chance to win.
+            var pathAverage = new Average();
+            var bestAverage = new Average();
 
-            var path = new Average();
-            var best = new Average();
-
-            Func<Node, bool, bool> walk = null;
-            walk = delegate(Node node, bool noAdd) 
+            root.walkEveryPath(path =>
             {
-                if(!noAdd) // Used so we don't add in the root node
-                    path.path.Add(node);
+                pathAverage.path = path;
 
-                if(node.children.Count == 0)
-                {
-                    if(path.averageWinPercent > best.averageWinPercent)
-                        best.path = new List<Node>(path.path); // Copies the list
-                }
-                else
-                {
-                    foreach(var child in node.children)
-                    {
-                        walk(child, false);
-                        path.path.RemoveAt(path.path.Count - 1); // Shrink the list by 1 once its done, so we don't have to create a new list.
-                    }
-                }
-
-                return false; // Dummy value
-            };
-
-            walk(root, true);
-            return best;
+                if (pathAverage.averageWinPercent > bestAverage.averageWinPercent)
+                    bestAverage.path = new List<Node>(pathAverage.path); // Copies the list
+            });
+            return bestAverage;
         }
     }
 }
