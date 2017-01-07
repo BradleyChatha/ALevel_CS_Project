@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:CS_Project"
         mc:Ignorable="d"
-        Title="CS Project v0.1.1 prototype" Height="444.417" Width="455" ResizeMode="NoResize">
+        Title="CS Project v0.1.1" Height="444.417" Width="455" ResizeMode="NoResize">
     <Window.Resources>
         <Style TargetType="Label"
                BasedOn="{StaticResource {x:Type Label}}"
