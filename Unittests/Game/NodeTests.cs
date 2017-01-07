@@ -2,6 +2,7 @@
 using System.IO;
 
 using Hash = CS_Project.Game.Board.Hash;
+using System;
 
 namespace CS_Project.Game.Tests
 {
@@ -30,20 +31,27 @@ namespace CS_Project.Game.Tests
              *      /----[1]----/ ".O......."
              * */
 
-            // First, seeing if it returns null on an invalid path.
+            // This action is used with Node.walk, it will keep track of the last node it visited.
+            Node last = null;
+            Action<Node> getLast = (node => last = node);
+
+            // First, seeing if it returns false on an invalid path.
             // "M........" -> "MM......."
             var path = new Hash[] { new Hash(p, $"{m}........"),
                                     new Hash(p, $"{m}{m}.......")};
-            Assert.IsNull(root.walk(path));
+            Assert.IsFalse(root.walk(path, getLast)); // "walk" returns false if the entire path couldn't be followed.
+            Assert.IsTrue(last == root.children[0]);  // Confirm that the only node we walked to was "M........"
 
             // Then see if depth works
-            Assert.IsTrue(path[0].Equals(root.walk(path, 1).hash));
+            Assert.IsTrue(root.walk(path, getLast, 1)); // It will return true now, since we walked 'depth' amount of nodes sucessfully
+            Assert.IsTrue(last == root.children[0]);
 
-            // Then finally see if it walks through things properly
+            // Then finally see if it walks through an entire path properly
             // We have to change the last hash in path first though
             path[1] = new Hash(p, $"{m}.{o}......"); // "M........" -> "M.O......"
 
-            Assert.IsTrue(path[1].Equals(root.walk(path).hash));
+            Assert.IsTrue(root.walk(path, getLast));            // If this returns true, then the entire path was walked
+            Assert.IsTrue(last == root.children[0].children[0]); // THen we make sure the last node walked to is correct.
         }
 
         [TestMethod()]

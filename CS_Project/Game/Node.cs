@@ -120,19 +120,23 @@ namespace CS_Project.Game
         }
 
         /// <summary>
-        /// Walks through this tree along a given 'path' and returns the node from this tree at the end of the path.
-        /// 
-        /// Each node in the path must have 0 or 1 children, as it is a straight path to walk.
-        /// 
-        /// A certain 'depth' can be given. For example, a depth of 2 means only 2 nodes are walked to before this function returns.
+        /// Given a list of hashes, walks through this tree of nodes, up to a certain depth, and performs
+        /// an action on every node walked to.
         /// </summary>
-        /// <param name="path">An enumeration of hashes, describing the path to walk.</param>
-        /// <param name="depth">The maximum number of nodes to walk past.</param>
-        /// <returns>The node at the end of the walked path. Or `null` if the entire path couldn't be walked through.</returns>
-        public Node walk(IList<Board.Hash> path, uint depth = uint.MaxValue)
+        /// <param name="path">The path of hashes to follow.</param>
+        /// <param name="action">The action to perform on every node followed.</param>
+        /// <param name="depth">The maximum amount of nodes to walk to (inclusive).</param>
+        /// <returns>
+        /// 'true' if the entire 'path' was walked, or if 'depth' amount of nodes were walked to. 
+        /// 'false' if the 'path' was cut short.
+        /// </returns>
+        public bool walk(IList<Board.Hash> path, Action<Node> action, uint depth = uint.MaxValue)
         {
             if (path == null)
                 throw new ArgumentNullException("path");
+
+            if (action == null)
+                throw new ArgumentNullException("action"); 
 
             if (depth == 0)
                 throw new ArgumentOutOfRangeException("depth", "The depth must be 1 or more");
@@ -142,11 +146,14 @@ namespace CS_Project.Game
             var currentPath = path.GetEnumerator(); // Current hash in the path
             currentPath.MoveNext();
 
-            while (walked < depth && currentThis != null && walked < path.Count)
+            // While:
+            //     We haven't walked the full depth.
+            // AND There are still nodes in the path we need to follow.
+            while (walked < depth && walked < path.Count)
             {
                 walked += 1;
 
-                bool found = false;
+                bool found = false; // If 'true', then a node from the path was found. If 'false', then the path ended prematurly
                 foreach (var node in currentThis.children)
                 {
                     if (node.hash.Equals(currentPath.Current))
@@ -154,15 +161,17 @@ namespace CS_Project.Game
                         currentPath.MoveNext();
                         currentThis = node;
                         found = true;
+
+                        action(node);
                         break;
                     }
                 }
 
                 if (!found)
-                    return null;
+                    return false;
             }
 
-            return currentThis;
+            return true;
         }
 
         public void serialise(BinaryWriter output)
