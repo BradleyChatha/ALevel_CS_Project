@@ -63,9 +63,11 @@ namespace CS_Project.Game.Tests
             var file = "Serialised_Node.bin";
             var path = $"{dir}/{file}";
 
+            // Make sure the temp directory exists.
             if(!Directory.Exists(dir))
                 Directory.CreateDirectory(dir);
 
+            // Then, write out a simple tree to a file.
             using (var stream = File.Create(path))
             {
                 using (var writer = new BinaryWriter(stream))
@@ -78,10 +80,18 @@ namespace CS_Project.Game.Tests
                                           });
                     root.children[0].children.Add(new Node(new Hash(Board.Piece.O, $"{m}{o}......."), 1, 2, 3));
 
+                    /* Tree:
+                     *                                          /---[0]---/ "MO......."
+                     *                  /---[0]---/ "M........"
+                     * "........."(root)
+                     *                  /---[1]---/ ".M......."
+                     * */
+
                     root.serialise(writer);
                 }
             }
 
+            // Then, read the tree back in from the file, and confirm *every* node is correct.
             using (var stream = File.OpenRead(path))
             {
                 using (var reader = new BinaryReader(stream))
