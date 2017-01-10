@@ -68,6 +68,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Game\Board.cs" />
+    <Compile Include="Game\Config.cs" />
     <Compile Include="Game\Controllers\Controller.cs" />
     <Compile Include="Game\Controllers\PlayerGUI.cs" />
     <Compile Include="Game\ISerialiseable.cs" />

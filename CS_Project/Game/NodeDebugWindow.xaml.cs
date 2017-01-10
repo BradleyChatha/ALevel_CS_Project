@@ -22,6 +22,8 @@ namespace CS_Project.Game
         public NodeDebugWindow()
         {
             InitializeComponent();
+
+            this.Title += $" {Config.versionString}";
         }
 
         /// <summary>

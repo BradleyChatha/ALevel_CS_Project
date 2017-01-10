@@ -64,6 +64,9 @@ namespace CS_Project
                                       xCon = new PlayerGUIController(this),
                                       oCon = new PlayerGUIController(this)
                                   });
+
+            // Misc.
+            this.Title += $" {Config.versionString}";
         }
 
         // If we don't abort the game thread, then the program will stay alive in the background.
