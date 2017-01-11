@@ -73,8 +73,10 @@ namespace CS_Project.Game.Controllers
         {
             base.onMatchStart(board, myPiece);
 
-            // Reset the local tree
+            // Reset the local tree and whatever else
             this._localTree = Node.root;
+            this._lastIndex = 0;
+            this._useRandom = false;
 
             // Update the global tree debugger
             this.doDebugAction(() => this._globalDebug.updateNodeData(this._globalTree));
