@@ -32,8 +32,9 @@ namespace CS_Project
     public partial class MainWindow : Window
     {
         private Thread                  _gameThread;
-        private Label[]                 _slots;    // The labels that represent the slots on the board.
-        public ConcurrentQueue<Message> gameQueue; // Used so the gui thread can talk to the game thread.
+        private AI                      _aiInstance; // Since the AI has no way of reading in past data yet, I need to keep a single instance of it so it can 'remember' past games.
+        private Label[]                 _slots;      // The labels that represent the slots on the board.
+        public ConcurrentQueue<Message> gameQueue;   // Used so the gui thread can talk to the game thread.
 
         public MainWindow()
         {
@@ -101,10 +102,13 @@ namespace CS_Project
             this.startButton.Visibility = Visibility.Hidden;
 
             // Then, start up a match between the AI and the player
+            if(this._aiInstance == null)
+                this._aiInstance = new AI(new NodeDebugWindow(), new NodeDebugWindow());
+
             this.gameQueue.Enqueue(new StartMatchMessage
             {
                 xCon = new PlayerGUIController(this),
-                oCon = new AI(new NodeDebugWindow(), new NodeDebugWindow())
+                oCon = this._aiInstance
             });
         }
     }
