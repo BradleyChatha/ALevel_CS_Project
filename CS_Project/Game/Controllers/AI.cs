@@ -78,10 +78,13 @@ namespace CS_Project.Game.Controllers
 
             // Update the global tree debugger
             this.doDebugAction(() => this._globalDebug.updateNodeData(this._globalTree));
+            this.doDebugAction(() => this._globalDebug.updateStatusText("[GLOBAL MOVE TREE DEBUGGER]"));
         }
 
         public override void onMatchEnd(MatchResult result)
         {
+            // The windows wont' be closed, as I may still need them.
+            // I can just close them manually afterwards.
             base.onMatchEnd(result);
         }
 

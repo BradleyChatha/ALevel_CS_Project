@@ -53,13 +53,6 @@ namespace CS_Project
             foreach(var slot in this._slots)
                 slot.MouseLeftButtonUp += onSlotPress;
 
-            // TEMPORARY: Tell the game UI to start a match between 2 players.
-            this.gameQueue.Enqueue(new StartMatchMessage
-                                  {
-                                      xCon = new PlayerGUIController(this),
-                                      oCon = new AI(new NodeDebugWindow(), new NodeDebugWindow())
-                                  });
-
             // Misc.
             this.Title += $" {Config.versionString}";
         }
@@ -100,6 +93,19 @@ namespace CS_Project
                 if(!hash.isMyPiece(i)) slot.Content = otherChar;
                 if(hash.isEmpty(i))    slot.Content = "";
             }
+        }
+
+        private void onStartMatch(object sender, RoutedEventArgs e)
+        {
+            // First, hide the button from being pressed again
+            this.startButton.Visibility = Visibility.Hidden;
+
+            // Then, start up a match between the AI and the player
+            this.gameQueue.Enqueue(new StartMatchMessage
+            {
+                xCon = new PlayerGUIController(this),
+                oCon = new AI(new NodeDebugWindow(), new NodeDebugWindow())
+            });
         }
     }
 

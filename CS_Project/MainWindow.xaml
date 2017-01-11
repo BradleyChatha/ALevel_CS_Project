@@ -70,6 +70,9 @@
                HorizontalAlignment="Stretch" Margin="0,371,0,0" VerticalAlignment="Top" HorizontalContentAlignment="Center"
                FontSize="24" FontFamily="Lucida Console" FontWeight="Bold"
                Foreground="#FF5F871A" Style="{x:Null}" />
+        <Button x:Name="startButton" Content="Start Match" HorizontalAlignment="Left" Margin="364,385,0,0" VerticalAlignment="Top" Width="75"
+                Visibility="Visible" Click="onStartMatch"/>
+
 
     </Grid>
 </Window>

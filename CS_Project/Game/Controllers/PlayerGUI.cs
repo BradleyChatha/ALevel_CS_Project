@@ -59,7 +59,8 @@ namespace CS_Project.Game.Controllers
             // Then update the GUI to display who's won.
             this._window.Dispatcher.Invoke(() => 
             {
-                this._window.turnLabel.Content = message;
+                this._window.turnLabel.Content      = message;
+                this._window.startButton.Visibility = System.Windows.Visibility.Visible;
             });
 
             base.onMatchEnd(result);
