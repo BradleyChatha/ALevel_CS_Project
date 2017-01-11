@@ -14,7 +14,7 @@
         <ScrollViewer Grid.Row="0" HorizontalAlignment="Stretch" Height="Auto" VerticalAlignment="Stretch" Width="Auto" 
                       HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
             <TreeView x:Name="tree" HorizontalAlignment="Stretch" Height="Auto" VerticalAlignment="Stretch" Width="Auto">
-                <TreeViewItem x:Name="root" Header="Nodes" />
+                <TreeViewItem x:Name="root" Header="Nodes" IsExpanded="True" />
             </TreeView>
         </ScrollViewer>
         <TextBox x:Name="status" Grid.Row="1"

@@ -59,13 +59,14 @@ namespace CS_Project.Game
                         continue;
 
                     // Then, make the new node
-                    var item = new TreeViewItem();
+                    var item    = new TreeViewItem();
                     item.Header =  "--------------------\n"
                                 + $"Hash: {node.hash}\n"
                                 + $"Index: {node.index}\n"
                                 + $"Wins: {node.won}({node.winPercent}%)\n"
                                 + $"Losses: {node.lost}({node.losePercent}%)";
-                    item.Name = nodeName;
+                    item.Name       = nodeName;
+                    item.IsExpanded = true;
 
                     // Finally, add it to the tree
                     parent.Items.Add(item);
