@@ -73,5 +73,17 @@ namespace CS_Project.Game
                 } 
             });
         }
+
+        /// <summary>
+        /// Updates the status text in the debug window. (The textbox at the bottom)
+        /// </summary>
+        /// <param name="status">The status to change to.</param>
+        public void updateStatusText(string status)
+        {
+            if(status == null)
+                status = "";
+
+            this.status.Text = status;
+        }
     }
 }

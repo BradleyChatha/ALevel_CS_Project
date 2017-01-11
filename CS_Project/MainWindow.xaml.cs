@@ -91,6 +91,7 @@ namespace CS_Project
             someRoot.children[0].children.Add(new Game.Node(new Board.Hash(Board.Piece.X, "MMOOO.MMO"), 2, 302, 20));
             someRoot.children[0].children.Add(new Game.Node(new Board.Hash(Board.Piece.X, "MMOOOMMMO"), 2, 302, 20));
             this._debugWindow.updateNodeData(someRoot);
+            this._debugWindow.updateStatusText(label.Name);
         }
 
         /// <summary>
