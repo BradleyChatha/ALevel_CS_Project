@@ -33,7 +33,6 @@ namespace CS_Project
     {
         private Thread                  _gameThread;
         private Label[]                 _slots;    // The labels that represent the slots on the board.
-        private NodeDebugWindow         _debugWindow;
         public ConcurrentQueue<Message> gameQueue; // Used so the gui thread can talk to the game thread.
 
         public MainWindow()
@@ -54,15 +53,11 @@ namespace CS_Project
             foreach(var slot in this._slots)
                 slot.MouseLeftButtonUp += onSlotPress;
 
-            // Open the debug window
-            this._debugWindow = new NodeDebugWindow(); // TODO Pass this to the game thread.
-            this._debugWindow.Show();
-
             // TEMPORARY: Tell the game UI to start a match between 2 players.
             this.gameQueue.Enqueue(new StartMatchMessage
                                   {
                                       xCon = new PlayerGUIController(this),
-                                      oCon = new PlayerGUIController(this)
+                                      oCon = new AI(new NodeDebugWindow(), new NodeDebugWindow())
                                   });
 
             // Misc.
@@ -86,12 +81,6 @@ namespace CS_Project
             var index = int.Parse(label.Name.Last().ToString());
 
             this.gameQueue.Enqueue(new PlayerPlaceMessage { index = index });
-            var someRoot = Node.root;
-            someRoot.children.Add(new Node(new Board.Hash(Board.Piece.X, "MM.OO.MMO"), 0, 20, 40));
-            someRoot.children[0].children.Add(new Game.Node(new Board.Hash(Board.Piece.X, "MMOOO.MMO"), 2, 302, 20));
-            someRoot.children[0].children.Add(new Game.Node(new Board.Hash(Board.Piece.X, "MMOOOMMMO"), 2, 302, 20));
-            this._debugWindow.updateNodeData(someRoot);
-            this._debugWindow.updateStatusText(label.Name);
         }
 
         /// <summary>
