@@ -91,6 +91,22 @@ namespace CS_Project.Game.Controllers
             if(!state.isMyPiece(index))
                 this.addToLocal(state, index);
 
+            // Now, the amount of nodes in the local tree should be the same as: Board.pieceCount - amountOfEmptySlots
+            // If not, then we've not created a node.
+            // (This test was created to prevent this bug from happening again. Praise be for the debug windows.)
+            var emptyCount = 0; // How many spaces are empty
+            for(int i = 0; i < Board.pieceCount; i++) // Count the empty spaces.
+                emptyCount += (state.isEmpty(i)) ? 1 : 0;
+
+            this._localTree.walkEveryPath(path =>
+            {
+                // Then make sure the tree's length is the same
+                var amountOfMoves = Board.pieceCount - emptyCount;
+                Debug.Assert(path.Count == amountOfMoves, 
+                            $"We've haven't added enough nodes to the local tree!\n"
+                          + $"empty = {emptyCount} | amountOfMoves = {amountOfMoves} | treeLength = {path.Count}");
+            });
+
             // Steps:
             // 1. Walk over the global tree using the local tree. (A custom walk will have to be done, Node.walk fails on non-existing nodes)
             // 2. If a node in the local tree doesn't exist in the global tree, create it. Set 'node' to this node.
