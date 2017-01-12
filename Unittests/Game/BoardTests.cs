@@ -15,7 +15,7 @@ namespace CS_Project.Game.Tests
         {
             int last = 0;
 
-            public override void onAfterTurn(Board.Hash boardState)
+            public override void onAfterTurn(Board.Hash boardState, int index)
             {
                 Assert.IsTrue(boardState.isMyPiece(this.last));
             }
@@ -37,7 +37,7 @@ namespace CS_Project.Game.Tests
 
         class StupidController : Controller
         {
-            public override void onAfterTurn(Board.Hash boardState)
+            public override void onAfterTurn(Board.Hash boardState, int index)
             {
                 var str = boardState.ToString().Replace(Board.Hash.otherChar, Board.Hash.emptyChar);
 
