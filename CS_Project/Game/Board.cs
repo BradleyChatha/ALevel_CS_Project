@@ -152,7 +152,7 @@ namespace CS_Project.Game
                 #region Do after controller turn
                 this._stage = Stage.AfterControllerTurn;
                 hash        = this.createHashFor(turnPiece);
-                controller.onAfterTurn(hash);
+                controller.onAfterTurn(hash, this._lastIndex);
                 #endregion
 
                 #region Misc stuff
@@ -167,20 +167,22 @@ namespace CS_Project.Game
             Debug.Assert(wonPiece != Piece.Empty || isTie, "There was no win condition, but the loop still ended.");
 
             #region Process the win
+            var stateX = this.createHashFor(Piece.X);
+            var stateO = this.createHashFor(Piece.O);
             if(isTie)
             {
-                xCon.onMatchEnd(MatchResult.Tied);
-                oCon.onMatchEnd(MatchResult.Tied);
+                xCon.onMatchEnd(stateX, this._lastIndex, MatchResult.Tied);
+                oCon.onMatchEnd(stateO, this._lastIndex, MatchResult.Tied);
             }
             else if (wonPiece == Piece.O)
             {
-                xCon.onMatchEnd(MatchResult.Lost);
-                oCon.onMatchEnd(MatchResult.Won);
+                xCon.onMatchEnd(stateX, this._lastIndex, MatchResult.Lost);
+                oCon.onMatchEnd(stateO, this._lastIndex, MatchResult.Won);
             }
             else
             {
-                xCon.onMatchEnd(MatchResult.Won);
-                oCon.onMatchEnd(MatchResult.Lost);
+                xCon.onMatchEnd(stateX, this._lastIndex, MatchResult.Won);
+                oCon.onMatchEnd(stateO, this._lastIndex, MatchResult.Lost);
             }
             #endregion
 

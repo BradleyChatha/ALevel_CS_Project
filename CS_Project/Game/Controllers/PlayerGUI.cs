@@ -45,7 +45,7 @@ namespace CS_Project.Game.Controllers
             });
         }
 
-        public override void onMatchEnd(MatchResult result)
+        public override void onMatchEnd(Board.Hash state, int index, MatchResult result)
         {
             // One the match has ended, figure out who won, and generate the appropriate win message.
             string message    = "";
@@ -63,10 +63,10 @@ namespace CS_Project.Game.Controllers
                 this._window.startButton.Visibility = System.Windows.Visibility.Visible;
             });
 
-            base.onMatchEnd(result);
+            base.onMatchEnd(state, index, result);
         }
 
-        public override void onAfterTurn(Board.Hash boardState)
+        public override void onAfterTurn(Board.Hash boardState, int index)
         {
             // After the player has done their turn, update the GUI to display it's the enemy's turn.
             this.updateGUI(boardState, (this.piece == Board.Piece.O) ? Board.Piece.X : Board.Piece.O);

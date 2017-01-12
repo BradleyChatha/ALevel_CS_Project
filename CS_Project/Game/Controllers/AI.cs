@@ -14,7 +14,6 @@ namespace CS_Project.Game.Controllers
         private Node _localTree;
 
         // Data needed for creating the localTree/performing a move.
-        private int     _lastIndex; // The index we placed our last piece.
         private bool    _useRandom; // If true, then the AI will perform a random move. This is used as a fallback.
         private Random  _rng;
 
@@ -63,7 +62,6 @@ namespace CS_Project.Game.Controllers
                 globalWindow.Show();
             }
 
-            this._lastIndex  = 0;
             this._useRandom  = false;
             this._rng        = new Random();
             this._globalTree = Node.root; // TEMPORARY: Currently there is no way to store/retrieve trees, so we use a new root every time.
@@ -75,7 +73,6 @@ namespace CS_Project.Game.Controllers
 
             // Reset the local tree and whatever else
             this._localTree = Node.root;
-            this._lastIndex = 0;
             this._useRandom = false;
 
             // Update the global tree debugger
@@ -83,11 +80,16 @@ namespace CS_Project.Game.Controllers
             this.doDebugAction(() => this._globalDebug.updateStatusText("[GLOBAL MOVE TREE DEBUGGER]"));
         }
 
-        public override void onMatchEnd(MatchResult result)
+        public override void onMatchEnd(Board.Hash state, int index, MatchResult result)
         {
             // The windows wont' be closed, as I may still need them.
             // I can just close them manually afterwards.
-            base.onMatchEnd(result);
+            base.onMatchEnd(state, index, result);
+
+            // If the last piece placed was by the other controller, then it won't have a node in the local tree.
+            // So we quickly add it.
+            if(!state.isMyPiece(index))
+                this.addToLocal(state, index);
 
             // Steps:
             // 1. Walk over the global tree using the local tree. (A custom walk will have to be done, Node.walk fails on non-existing nodes)
@@ -148,10 +150,10 @@ namespace CS_Project.Game.Controllers
             this.doDebugAction(() => this._globalDebug.updateNodeData(this._globalTree));
         }
 
-        public override void onAfterTurn(Board.Hash boardState)
+        public override void onAfterTurn(Board.Hash boardState, int index)
         {
             // Add the AI's move.
-            this.addToLocal(boardState, this._lastIndex);
+            this.addToLocal(boardState, index);
         }
 
         public override void onDoTurn(Board.Hash boardState, int index)
@@ -178,7 +180,7 @@ namespace CS_Project.Game.Controllers
             {
                 // First, get the path of the local tree.
                 List<Node> localPath = null;
-                this._localTree.walkEveryPath(path => localPath = path);
+                this._localTree.walkEveryPath(path => localPath = new List<Node>(path));
 
                 // Then, attempt to walk through the global tree, and find the last node in the path.
                 Node last     = null;

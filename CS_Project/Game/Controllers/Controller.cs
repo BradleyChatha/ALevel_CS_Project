@@ -58,8 +58,10 @@ namespace CS_Project.Game.Controllers
         /// 
         /// Notes for inheriting classes: Call 'super.onMatchEnd' only at the end of the function.
         /// </summary>
+        /// <param name="boardState">The final state of the board.</param>
+        /// <param name="index">The index of where the last piece was placed on the board.</param>
         /// <param name="result">Contains the match result.</param>
-        public virtual void onMatchEnd(MatchResult result)
+        public virtual void onMatchEnd(Board.Hash boardState, int index, MatchResult result)
         {
             this.board = null;
             this.piece = Board.Piece.Empty;
@@ -83,6 +85,7 @@ namespace CS_Project.Game.Controllers
         /// Called after the controller has taken its turn.
         /// </summary>
         /// <param name="boardState">The state of the board after the controller's turn.</param>
-        public abstract void onAfterTurn(Board.Hash boardState);
+        /// <param name="index">The index of where the last piece was placed on the board.</param>
+        public abstract void onAfterTurn(Board.Hash boardState, int index);
     }
 }
