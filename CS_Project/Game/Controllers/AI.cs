@@ -20,6 +20,7 @@ namespace CS_Project.Game.Controllers
         // Other
         private NodeDebugWindow _debug;       // Debug window for general info + local tree
         private NodeDebugWindow _globalDebug; // Debug window purely for the global tree.
+        private const string    _globalName = "global_move_tree"; // The name used to save the global move tree.
 
         /// <summary>
         /// Performs an action using the debug window's dispatcher (only if it's not null).
@@ -50,6 +51,7 @@ namespace CS_Project.Game.Controllers
 
         public AI(NodeDebugWindow window, NodeDebugWindow globalWindow)
         {
+            // Show the debug windows.
             if(window != null)
             {
                 this._debug = window;
@@ -62,9 +64,14 @@ namespace CS_Project.Game.Controllers
                 globalWindow.Show();
             }
 
+            // Setup variables.
             this._useRandom  = false;
             this._rng        = new Random();
-            this._globalTree = Node.root; // TEMPORARY: Currently there is no way to store/retrieve trees, so we use a new root every time.
+
+            // Load the move tree
+            this._globalTree = GameFiles.loadTree(AI._globalName, false);
+            if(this._globalTree == null)
+                this._globalTree = Node.root;
         }
 
         public override void onMatchStart(Board board, Board.Piece myPiece)
@@ -163,6 +170,8 @@ namespace CS_Project.Game.Controllers
                 local  = local.children[0];
             }
 
+            // Save the global tree, and update the debug window.
+            GameFiles.saveTree(AI._globalName, this._globalTree);
             this.doDebugAction(() => this._globalDebug.updateNodeData(this._globalTree));
         }
 
