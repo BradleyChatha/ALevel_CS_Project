@@ -113,38 +113,60 @@ namespace CS_Project
         }
     }
 
-    // This part of the partial MainWindow class is for anything ran on the Game thread.
+    // This part of the partial MainWindow class is for anything ran on or related to the Game thread.
     public partial class MainWindow : Window
     {
+        // Any exception thrown in the game thread is passed to this function (In the UI thread)
+        // so that the UI can inform the user about something going wrong.
+        public void reportException(Exception ex)
+        {
+            // Create the message to show the user.
+            string msg = $"Something went wrong: {ex.Message}";
+
+            // In debug mode, show the stack trace.
+            #if DEBUG
+            msg += $"\n{ex.StackTrace}";
+            #endif
+
+            MessageBox.Show(msg, "An exception was thrown", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+
         private void gameThreadMain()
         {
-            // All variables for the game thread should be kept inside this function.
-            // Use Dispatcher.Invoke when the game thread needs to modify the UI.
-            // Use gameQueue so the GUI thread can speak to the game thread.
-            var board = new Board();
-            var state = GameState.Waiting;
-
-            while (true)
+            try
             {
-                // If no match is being done, listen to the message queue for things.
-                if (state == GameState.Waiting)
-                {
-                    // Check for a message every 0.5 seconds.
-                    Message msg;
-                    while (!this.gameQueue.TryDequeue(out msg))
-                        Thread.Sleep(500);
+                // All variables for the game thread should be kept inside this function.
+                // Use Dispatcher.Invoke when the game thread needs to modify the UI.
+                // Use gameQueue so the GUI thread can speak to the game thread.
+                var board = new Board();
+                var state = GameState.Waiting;
 
-                    // If we get a StartMatchMessage, then perform a match.
-                    if (msg is StartMatchMessage)
+                while (true)
+                {
+                    // If no match is being done, listen to the message queue for things.
+                    if (state == GameState.Waiting)
                     {
-                        var info = msg as StartMatchMessage;
-                        state = GameState.DoingMatch;
-                        board.startMatch(info.xCon, info.oCon);
-                        state = GameState.Waiting;
+                        // Check for a message every 0.5 seconds.
+                        Message msg;
+                        while (!this.gameQueue.TryDequeue(out msg))
+                            Thread.Sleep(500);
+
+                        // If we get a StartMatchMessage, then perform a match.
+                        if (msg is StartMatchMessage)
+                        {
+                            var info = msg as StartMatchMessage;
+                            state = GameState.DoingMatch;
+                            board.startMatch(info.xCon, info.oCon);
+                            state = GameState.Waiting;
+                        }
+                        else // Otherwise, requeue it
+                            this.gameQueue.Enqueue(msg);
                     }
-                    else // Otherwise, requeue it
-                        this.gameQueue.Enqueue(msg);
                 }
+            }
+            catch(Exception ex) // Catch any exceptions, and let the UI thread inform the user.
+            {
+                this.Dispatcher.Invoke(() => this.reportException(ex));
             }
         }
     }
