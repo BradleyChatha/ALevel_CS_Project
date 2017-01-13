@@ -72,6 +72,7 @@
     <Compile Include="Game\Controllers\AI.cs" />
     <Compile Include="Game\Controllers\Controller.cs" />
     <Compile Include="Game\Controllers\PlayerGUI.cs" />
+    <Compile Include="Game\GameFiles.cs" />
     <Compile Include="Game\ISerialiseable.cs" />
     <Compile Include="Game\Message.cs" />
     <Compile Include="Game\Node.cs" />

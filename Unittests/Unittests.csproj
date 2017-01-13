@@ -54,6 +54,7 @@
   <ItemGroup>
     <Compile Include="Game\AverageTests.cs" />
     <Compile Include="Game\BoardTests.cs" />
+    <Compile Include="Game\GameFilesTests.cs" />
     <Compile Include="Game\NodeTests.cs" />
     <Compile Include="Game_Hash.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
