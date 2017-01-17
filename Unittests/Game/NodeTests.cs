@@ -1,4 +1,5 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using CS_Project.Game;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.IO;
 
 using Hash = CS_Project.Game.Board.Hash;
@@ -17,7 +18,7 @@ namespace CS_Project.Game.Tests
             var p = Board.Piece.X;
 
             var root = Node.root;
-            root.children.AddRange(new Node[] 
+            root.children.AddRange(new Node[]
                                   {
                                       new Node(new Hash(p, $"{m}........"), 0),
                                       new Node(new Hash(p, $".{o}......."), 1)
@@ -57,14 +58,14 @@ namespace CS_Project.Game.Tests
         [TestMethod()]
         public void nodeSerialiseTest()
         {
-            var m    = Hash.myChar;
-            var o    = Hash.otherChar;
-            var dir  = "Temp";
+            var m = Hash.myChar;
+            var o = Hash.otherChar;
+            var dir = "Temp";
             var file = "Serialised_Node.bin";
             var path = $"{dir}/{file}";
 
             // Make sure the temp directory exists.
-            if(!Directory.Exists(dir))
+            if (!Directory.Exists(dir))
                 Directory.CreateDirectory(dir);
 
             // Then, write out a simple tree to a file.
@@ -101,23 +102,70 @@ namespace CS_Project.Game.Tests
 
                     var n = root.children[0]; // Current node we're asserting
                     Assert.AreEqual(new Hash(Board.Piece.X, $"{m}........"), n.hash);
-                    Assert.AreEqual(0u,                                      n.index);
-                    Assert.AreEqual(3u,                                      n.won);
-                    Assert.AreEqual(5u,                                      n.lost);
+                    Assert.AreEqual(0u, n.index);
+                    Assert.AreEqual(3u, n.won);
+                    Assert.AreEqual(5u, n.lost);
 
                     n = root.children[1];
                     Assert.AreEqual(new Hash(Board.Piece.X, $".{m}......."), n.hash);
-                    Assert.AreEqual(1u,                                      n.index);
-                    Assert.AreEqual(1u,                                      n.won);
-                    Assert.AreEqual(4u,                                      n.lost);
+                    Assert.AreEqual(1u, n.index);
+                    Assert.AreEqual(1u, n.won);
+                    Assert.AreEqual(4u, n.lost);
 
                     n = root.children[0].children[0];
                     Assert.AreEqual(new Hash(Board.Piece.O, $"{m}{o}......."), n.hash);
-                    Assert.AreEqual(1u,                                        n.index);
-                    Assert.AreEqual(2u,                                        n.won);
-                    Assert.AreEqual(3u,                                        n.lost);
+                    Assert.AreEqual(1u, n.index);
+                    Assert.AreEqual(2u, n.won);
+                    Assert.AreEqual(3u, n.lost);
                 }
             }
+        }
+
+        [TestMethod()]
+        public void mergeTest()
+        {
+            var m = Hash.myChar;
+            var o = Hash.otherChar;
+
+            // This is the tree that's going to be merged into.
+            var destination = Node.root;
+
+            // "M........" (W:2, L:1) -> [0] "MO......." (W:1 L:0)
+            //                        -> [1] "M.O......" (W:1 L:1)
+            // ".M......." (W:0 L:0)
+            var source = Node.root;
+            source.children.Add            (new Node(new Hash(Board.Piece.X, $"{m}........"),   0, 2, 1));
+            source.children.Add            (new Node(new Hash(Board.Piece.X, $".{m}......."),   1, 0, 0));
+            source.children[0].children.Add(new Node(new Hash(Board.Piece.X, $"{m}{o}......."), 1, 1, 0));
+            source.children[0].children.Add(new Node(new Hash(Board.Piece.X, $"{m}.{o}......"), 2, 1, 1));
+
+            // Doing it twice to make sure it works for nodes that exist, and ones that don't exist.
+            Node.merge(destination, source);
+            Node.merge(destination, source);
+
+            var node = destination.children[0];
+            Assert.IsTrue(node.hash.ToString()  == $"{m}........");
+            Assert.IsTrue(node.index            == 0);
+            Assert.IsTrue(node.won              == 4);
+            Assert.IsTrue(node.lost             == 2);
+
+            node = destination.children[1];
+            Assert.IsTrue(node.hash.ToString()  == $".{m}.......");
+            Assert.IsTrue(node.index            == 1);
+            Assert.IsTrue(node.won              == 0);
+            Assert.IsTrue(node.lost             == 0);
+
+            node = destination.children[0].children[0];
+            Assert.IsTrue(node.hash.ToString()  == $"{m}{o}.......");
+            Assert.IsTrue(node.index            == 1);
+            Assert.IsTrue(node.won              == 2);
+            Assert.IsTrue(node.lost             == 0);
+
+            node = destination.children[0].children[1];
+            Assert.IsTrue(node.hash.ToString()  == $"{m}.{o}......");
+            Assert.IsTrue(node.index            == 2);
+            Assert.IsTrue(node.won              == 2);
+            Assert.IsTrue(node.lost             == 2);
         }
     }
 }
