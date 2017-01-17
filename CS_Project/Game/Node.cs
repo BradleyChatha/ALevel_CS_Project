@@ -214,8 +214,20 @@ namespace CS_Project.Game
             walk(this, true);
         }
 
+        /// <summary>
+        /// Merges the nodes (including the wins/losses counter) from a source tree, into a destination tree.
+        /// 
+        /// Any nodes in 'source' that don't belong in 'destination' will be created.
+        /// </summary>
+        /// <param name="destination">The tree that will be modified.</param>
+        /// <param name="source">The tree providing the nodes to merge.</param>
         public static void merge(Node destination, Node source)
         {
+            if(destination == null)
+                throw new ArgumentNullException("destination");
+            if(source == null)
+                throw new ArgumentNullException("source");
+
             // If, for whatever reason, the source tree is empty. Then return, otherwise we'll crash a few lines down.
             if (source.children.Count == 0)
                 return;
@@ -229,7 +241,7 @@ namespace CS_Project.Game
                 Node node = null;
                 foreach (Node child in parent.children)
                 {
-                    // If the child is in the local tree, then set it as 'node'
+                    // If the child is in the source tree, then set it as 'node'
                     if (child.hash.ToString() == local.hash.ToString())
                     {
                         node = child;
