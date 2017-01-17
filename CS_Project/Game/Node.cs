@@ -11,6 +11,18 @@ using System.Threading.Tasks;
 /// </summary>
 namespace CS_Project.Game
 {
+    // Private class used in Node.merge to keep track of some data.
+    // NodeMergeInfo keeps track of two versions of a node, and an index.
+    // The 'node' Node is the version of the node that's in the 'source' tree.
+    // The 'parent' Node is the version of the node that's in the 'destination' tree
+    // The index is used as an index to 'node.children'.
+    class NodeMergeInfo
+    {
+        internal Node node   { set; get; } // Node being used. (This node is in the 'source' tree)
+        internal Node parent { set; get; } // The version of 'node' that is inside the 'destination' tree.
+        internal int index   { set; get; } // Index used for node.children
+    }
+
     /// <summary>
     /// A node describing a single move.
     /// </summary>
@@ -232,17 +244,51 @@ namespace CS_Project.Game
             if (source.children.Count == 0)
                 return;
 
-            bool loop  = true;                // Variable to control the while loop.
-            var parent = destination;         // Current node in the destination tree. Starts off at the root.
-            var local  = source.children[0];  // Current node in the source tree.
-            while (loop)
+            var info     = new Stack<NodeMergeInfo>();        // Too annoying to explain, but this allows nodes with multiple children to be merged.
+            var parent   = destination;                       // Current node in the destination tree. Starts off at the root.
+            var local    = new NodeMergeInfo {node = source}; // Current node in the source tree.
+            local.parent = parent;
+            while (true)
             {
+                // Get the next local node.
+                // local will be set to null if there are no nodes left.
+                while(true)
+                {
+                    // First, get how many children the node will have left for us.
+                    var childCount = local.node.children.Count - local.index;
+
+                    // Then, if there's still children, push the current local onto the info stack, and make the next child the new local.
+                    if(childCount > 0)
+                    {
+                        info.Push(local);
+                        local = new NodeMergeInfo { node = local.node.children[local.index++] };
+                        break;
+                    }
+                    else
+                    {
+                        // Otherwise, if there's no children left.
+                        if(info.Count == 0) // Break if the stack is empty
+                        {
+                            local = null;
+                            break;
+                        }
+
+                        // Otherwise, pop the stack, set it to local, and run the loop over it.
+                        local  = info.Pop();
+                        parent = local.parent;
+                    }
+                }
+
+                // If there are no more nodes left.
+                if(local == null)
+                    break;
+
                 // Go over all the children in the parent.
                 Node node = null;
                 foreach (Node child in parent.children)
                 {
                     // If the child is in the source tree, then set it as 'node'
-                    if (child.hash.ToString() == local.hash.ToString())
+                    if (child.hash.ToString() == local.node.hash.ToString())
                     {
                         node = child;
                         break;
@@ -254,21 +300,17 @@ namespace CS_Project.Game
                 {
                     // We create a new node so we don't add in all the children with it 
                     // (while correct, it breaks my original visualisation of the algorithm. I need this here to keep it sane in my head)
-                    node = new Node(local.hash, local.index);
+                    node = new Node(local.node.hash, local.node.index);
                     parent.children.Add(node);
                 }
 
                 // Then add in the win/loss counters
-                node.won  += local.won;
-                node.lost += local.lost;
+                node.won  += local.node.won;
+                node.lost += local.node.lost;
 
-                // Break once we've been through all the nodes.
-                if (local.children.Count == 0)
-                    break;
-
-                // Move onto the next nodes.
-                parent = node;
-                local = local.children[0];
+                // Set the new parents
+                parent       = node;
+                local.parent = parent;
             }
         }
 
