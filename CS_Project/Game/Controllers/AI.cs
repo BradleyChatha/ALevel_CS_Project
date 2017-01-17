@@ -112,63 +112,23 @@ namespace CS_Project.Game.Controllers
                 Debug.Assert(path.Count == amountOfMoves, 
                             $"We've haven't added enough nodes to the local tree!\n"
                           + $"empty = {emptyCount} | amountOfMoves = {amountOfMoves} | treeLength = {path.Count}");
-            });
 
-            // Steps:
-            // 1. Walk over the global tree using the local tree. (A custom walk will have to be done, Node.walk fails on non-existing nodes)
-            // 2. If a node in the local tree doesn't exist in the global tree, create it. Set 'node' to this node.
-            // 3. Otherwise, set 'node' to the node walked to.
-            // 4. Bump up 'node's win/loss counter as needed.
-            // 5. [When possible] save to the global tree file.
-
-            // If, for whatever reason, the local tree is empty. Then return, otherwise we'll crash a few lines down.
-            if(this._localTree.children.Count == 0)
-                return;
-
-            bool loop   = true;                         // Variable to control the while loop.
-            var  parent = this._globalTree;             // Current node in the global tree. Starts off at the root.
-            var  local  = this._localTree.children[0];  // Current node in the local tree.
-            while(loop)
-            {
-                // Go over all the children in the parent.
-                Node node  = null;
-                foreach (Node child in parent.children)
+                // Finally, bump the won/lost counters in the local tree
+                foreach(var node in path)
                 {
-                    // If the child is in the local tree, then set it as 'node'
-                    if(child.hash.ToString() == local.hash.ToString())
+                    if(result == MatchResult.Won)
+                        node.won += 1;
+                    else if(result == MatchResult.Lost)
+                        node.lost += 1;
+                    else
                     {
-                        node = child;
-                        break;
+                        // If we tie, don't bump anything up.
                     }
                 }
+            });
 
-                // If no matching node was found, create it!
-                if(node == null)
-                {
-                    // We create a new node so we don't add in all the children with it 
-                    // (while correct, it breaks my original visualisation of the algorithm. I need this here to keep it sane in my head)
-                    node = new Node(local.hash, local.index);
-                    parent.children.Add(node);
-                }
-
-                // Bump up the counters
-                if(result == MatchResult.Won)
-                    node.won += 1;
-                else if(result == MatchResult.Lost)
-                    node.lost += 1;
-                else
-                {
-                    // If we tie... Then we don't do anything I guess.
-                }
-
-                // Break once we've been through all the nodes.
-                if(local.children.Count == 0)
-                    break;
-
-                // Move onto the next nodes.
-                parent = node;
-                local  = local.children[0];
-            }
+            // Then merge the local tree into the global one.
+            Node.merge(this._globalTree, this._localTree);
 
             // Save the global tree, and update the debug window.
             GameFiles.saveTree(AI._globalName, this._globalTree);

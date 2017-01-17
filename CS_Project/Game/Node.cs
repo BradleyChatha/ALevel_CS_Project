@@ -214,6 +214,52 @@ namespace CS_Project.Game
             walk(this, true);
         }
 
+        public static void merge(Node destination, Node source)
+        {
+            // If, for whatever reason, the source tree is empty. Then return, otherwise we'll crash a few lines down.
+            if (source.children.Count == 0)
+                return;
+
+            bool loop  = true;                // Variable to control the while loop.
+            var parent = destination;         // Current node in the destination tree. Starts off at the root.
+            var local  = source.children[0];  // Current node in the source tree.
+            while (loop)
+            {
+                // Go over all the children in the parent.
+                Node node = null;
+                foreach (Node child in parent.children)
+                {
+                    // If the child is in the local tree, then set it as 'node'
+                    if (child.hash.ToString() == local.hash.ToString())
+                    {
+                        node = child;
+                        break;
+                    }
+                }
+
+                // If no matching node was found, create it!
+                if (node == null)
+                {
+                    // We create a new node so we don't add in all the children with it 
+                    // (while correct, it breaks my original visualisation of the algorithm. I need this here to keep it sane in my head)
+                    node = new Node(local.hash, local.index);
+                    parent.children.Add(node);
+                }
+
+                // Then add in the win/loss counters
+                node.won  += local.won;
+                node.lost += local.lost;
+
+                // Break once we've been through all the nodes.
+                if (local.children.Count == 0)
+                    break;
+
+                // Move onto the next nodes.
+                parent = node;
+                local = local.children[0];
+            }
+        }
+
         public void serialise(BinaryWriter output)
         {
             /*
