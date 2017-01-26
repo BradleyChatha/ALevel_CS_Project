@@ -57,6 +57,7 @@ namespace CS_Project.Game.Controllers
             else                                message = "[Unknown result]";
 
             // Then update the GUI to display who's won.
+            this.updateGUI(state, this.piece);
             this._window.Dispatcher.Invoke(() => 
             {
                 this._window.turnLabel.Content      = message;
