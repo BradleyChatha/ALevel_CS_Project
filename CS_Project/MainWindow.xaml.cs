@@ -204,6 +204,11 @@ namespace CS_Project
                 }
                 catch (Exception ex) // Catch any exceptions, and let the UI thread inform the user.
                 {
+                    // If it's a thread exception, don't bother reporting it.
+                    // This is because it's most likely an exception telling the thread to close itself.
+                    if(ex is ThreadAbortException)
+                        return;
+
                     this.Dispatcher.Invoke(() => this.reportException(ex));
                     state = GameState.Crashed;
                 }
