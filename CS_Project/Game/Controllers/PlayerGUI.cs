@@ -78,6 +78,10 @@ namespace CS_Project.Game.Controllers
             // Update the GUI to display the opponent's last move, as well as to tell the user it's their turn.
             this.updateGUI(boardState, this.piece);
 
+            // Clear the message queue, to prevent old PlayerPlaceMessages from being processed
+            Message m;
+            while(this._window.gameQueue.TryDequeue(out m)) { }
+
             // Wait for the GUI to have signaled that the player has made a move.
             Message msg;
             while(true)
