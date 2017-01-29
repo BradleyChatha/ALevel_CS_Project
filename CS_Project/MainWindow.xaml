@@ -76,7 +76,7 @@
         <ToolBar x:Name="toolBar" HorizontalAlignment="Stretch" Margin="0,0,0,0" VerticalAlignment="Top">
             <Menu>
                 <MenuItem Header="Debug" Visibility="{x:Static local:MainWindow.debugVisibility}">
-                    <MenuItem x:Name="debug_throwException" Header="Throw Exception in game thread" Click="debug_throwException_Click" />
+                    <MenuItem x:Name="debug_throwException" Header="Throw an Exception in game thread" Click="debug_throwException_Click" />
                 </MenuItem>
             </Menu>    
         </ToolBar>

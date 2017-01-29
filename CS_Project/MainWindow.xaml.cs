@@ -22,8 +22,9 @@ namespace CS_Project
 {
     enum GameState
     {
-        Waiting,   // The game thread is waiting for messages to be sent to it.
-        DoingMatch // The game thread is processing a match.
+        Waiting,    // The game thread is waiting for messages to be sent to it.
+        DoingMatch, // The game thread is processing a match.
+        Crashed     // The game thread has thrown an exception.
     }
 
     /// <summary>
@@ -158,15 +159,15 @@ namespace CS_Project
 
         private void gameThreadMain()
         {
-            try
-            {
-                // All variables for the game thread should be kept inside this function.
-                // Use Dispatcher.Invoke when the game thread needs to modify the UI.
-                // Use gameQueue so the GUI thread can speak to the game thread.
-                var board = new Board();
-                var state = GameState.Waiting;
+            // All variables for the game thread should be kept inside this function.
+            // Use Dispatcher.Invoke when the game thread needs to modify the UI.
+            // Use gameQueue so the GUI thread can speak to the game thread.
+            var board = new Board();
+            var state = GameState.Waiting;
 
-                while (true)
+            while (true)
+            {
+                try
                 {
                     // If no match is being done, listen to the message queue for things.
                     if (state == GameState.Waiting)
@@ -189,11 +190,23 @@ namespace CS_Project
                         else // Otherwise, requeue it
                             this.gameQueue.Enqueue(msg);
                     }
+                    else if(state == GameState.Crashed) // If an exception is ever thrown, then some things have to be reset.
+                    {
+                        state = GameState.Waiting;
+                        board = new Board(); // Making sure the board isn't in an invalid state.
+
+                        this.Dispatcher.Invoke(() => 
+                        {
+                            this.userPieceLabel.Content = "[An error has occured]";
+                            this.turnLabel.Content      = "[Please start a new match]";
+                        });
+                    }
                 }
-            }
-            catch(Exception ex) // Catch any exceptions, and let the UI thread inform the user.
-            {
-                this.Dispatcher.Invoke(() => this.reportException(ex));
+                catch (Exception ex) // Catch any exceptions, and let the UI thread inform the user.
+                {
+                    this.Dispatcher.Invoke(() => this.reportException(ex));
+                    state = GameState.Crashed;
+                }
             }
         }
     }
