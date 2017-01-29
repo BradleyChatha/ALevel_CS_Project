@@ -111,6 +111,31 @@ namespace CS_Project
                 oCon = this._aiInstance
             });
         }
+
+        /// <summary>
+        /// Used by debug controls to control whether they're visible on screen or not.
+        /// 
+        /// If DEBUG is defined, the controls will be visible.
+        /// Otherwise, the controls will not be visible.
+        /// </summary>
+        public static Visibility debugVisibility
+        {
+            get
+            {
+                #if DEBUG
+                return Visibility.Visible;
+                #else
+                return Visibility.Collapsed;
+                #endif
+            }
+        }
+
+        // Throws an exception in the game thread.
+        // Used for testing reasons.
+        private void debug_throwException_Click(object sender, RoutedEventArgs e)
+        {
+            this.gameQueue.Enqueue(new ThrowExceptionMessage());
+        }
     }
 
     // This part of the partial MainWindow class is for anything ran on or related to the Game thread.
@@ -152,13 +177,15 @@ namespace CS_Project
                             Thread.Sleep(500);
 
                         // If we get a StartMatchMessage, then perform a match.
-                        if (msg is StartMatchMessage)
+                        if(msg is StartMatchMessage)
                         {
                             var info = msg as StartMatchMessage;
                             state = GameState.DoingMatch;
                             board.startMatch(info.xCon, info.oCon);
                             state = GameState.Waiting;
                         }
+                        else if(msg is ThrowExceptionMessage) // Used for testing the try-catch statement guarding this function.
+                            throw new Exception();
                         else // Otherwise, requeue it
                             this.gameQueue.Enqueue(msg);
                     }

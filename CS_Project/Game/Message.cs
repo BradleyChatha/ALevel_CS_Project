@@ -40,4 +40,11 @@ namespace CS_Project.Game
         /// </summary>
         public int index { get; set; }
     }
+
+    /// <summary>
+    /// This test message is used to tell the game thread to throw an Exception.
+    /// </summary>
+    public sealed class ThrowExceptionMessage : Message
+    {
+    }
 }
