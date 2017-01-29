@@ -73,7 +73,7 @@
         <Button x:Name="startButton" Content="Start Match" HorizontalAlignment="Left" Margin="364,389,0,0" VerticalAlignment="Top" Width="75"
                 Visibility="Visible" Click="onStartMatch"/>
         
-        <ToolBar x:Name="toolBar" HorizontalAlignment="Stretch" Margin="0,0,0,0" VerticalAlignment="Top">
+        <ToolBar x:Name="toolBar" HorizontalAlignment="Stretch" Margin="0,0,0,0" VerticalAlignment="Top" ToolBarTray.IsLocked="True">
             <Menu>
                 <MenuItem Header="Debug" Visibility="{x:Static local:MainWindow.debugVisibility}">
                     <MenuItem x:Name="debug_throwException" Header="Throw an Exception in game thread" Click="debug_throwException_Click" />
