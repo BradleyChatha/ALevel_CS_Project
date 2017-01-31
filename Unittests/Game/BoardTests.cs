@@ -90,6 +90,9 @@ namespace CS_Project.Game.Tests
                             case 2:
                                 Assert.IsTrue(board.predict(i, this, out noResult) == MatchResult.Won);
                                 Assert.IsFalse(noResult);
+
+                                board.predict(i, this, out noResult, false);
+                                Assert.IsTrue(noResult);
                                 break;
 
                             default: break;

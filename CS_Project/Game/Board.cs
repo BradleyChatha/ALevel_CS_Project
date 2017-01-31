@@ -226,19 +226,34 @@ namespace CS_Project.Game
         /// <param name="index">The index of where to place the piece.</param>
         /// <param name="controller">The controller that's placing the piece.</param>
         /// <param name="noResult">Set to 'true' if the move made wouldn't end the game.</param>
+        /// <param name="myPiece">
+        /// If 'false', then instead of using 'controller's piece, the other controller's piece is used instead.
+        /// The MatchResult that is returned will still be from 'controller's perspective.
+        /// </param>
         /// <returns>
         /// If 'noResult' is true, then the returned value should not be used.
         /// Otherwise, the result of the match for if the controller actually placed it's piece.
         /// </returns>
-        public MatchResult predict(int index, Controller controller, out bool noResult)
+        public MatchResult predict(int index, Controller controller, out bool noResult, bool myPiece = true)
         {
             // Keep a copy of some variables.
             var oldPiece = this._board[index];
             var oldIndex = this._lastIndex;
             var oldFlags = this._flags;
 
-            // Get the result of the match
-            this.set(index, controller);
+            // Figure out which controller's piece to place.
+            Piece toPlace = controller.piece;
+
+            if(!myPiece)
+            {
+                toPlace = (controller.piece == Piece.X) ? Piece.O
+                                                        : Piece.X;
+            }
+
+            Debug.Assert(toPlace != Piece.Empty);
+
+            // Place the piece, and get the result of the match
+            this._board[index] = toPlace;
 
             bool isTie = false;
             var winner = this.checkForWin(out isTie);
