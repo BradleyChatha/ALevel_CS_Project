@@ -104,7 +104,13 @@ namespace CS_Project
 
             // Then, start up a match between the AI and the player
             if(this._aiInstance == null)
+            {
+                #if DEBUG
                 this._aiInstance = new AI(new NodeDebugWindow(), new NodeDebugWindow());
+                #else
+                this._aiInstance = new AI(null, null);
+                #endif
+            }
 
             this.gameQueue.Enqueue(new StartMatchMessage
             {
@@ -123,11 +129,11 @@ namespace CS_Project
         {
             get
             {
-                #if DEBUG
+#if DEBUG
                 return Visibility.Visible;
-                #else
+#else
                 return Visibility.Collapsed;
-                #endif
+#endif
             }
         }
 
@@ -150,9 +156,9 @@ namespace CS_Project
             string msg = $"Something went wrong: {ex.Message}";
 
             // In debug mode, show the stack trace.
-            #if DEBUG
+#if DEBUG
             msg += $"\n{ex.StackTrace}";
-            #endif
+#endif
 
             MessageBox.Show(msg, "An exception was thrown", MessageBoxButton.OK, MessageBoxImage.Error);
         }
