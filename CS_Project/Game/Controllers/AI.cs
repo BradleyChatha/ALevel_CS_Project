@@ -147,10 +147,62 @@ namespace CS_Project.Game.Controllers
             if(index != int.MaxValue)
                 this.addToLocal(boardState, index);
 
+            // doWinBlockCheck returns whether it places a piece or not.
+            // If it placed it's piece, then we want to simply end our turn, by returning.
+            /*if(this.doWinBlockCheck(boardState))
+            {
+                this.doDebugAction(() => this._debug.updateStatusText("doWinBlockCheck performed a move."));
+                return;
+            }*/
+
             if(this._useRandom)
                 this.doRandom(boardState);
             else
                 this.doStatisticallyBest(boardState);
+        }
+
+        // Determines if the AI can either win/block the other player from winning with its next move.
+        private bool doWinBlockCheck(Board.Hash hash)
+        {
+            // The AI will prioritise doing a winning move, over blocking the player.
+            // So this list is used to keep track of where the AI could block the player this turn.
+            // (although, most of the time there's more than 1 place to block, it means the AI is about to lose either way.)
+            var blockList = new List<int>();
+
+            for(var i = 0; i < Board.pieceCount; i++)
+            {
+                if(!hash.isEmpty(i))
+                    continue;
+
+                // See if the AI can win/block by placing a piece at index 'i'
+                bool noResult;
+                var result = base.board.predict(i, this, out noResult);
+
+                // If the move makes us win, perform it.
+                if(!noResult && result == MatchResult.Won)
+                {
+                    base.board.set(i, this);
+                    return true;
+                }
+
+                // Otherwise, see if the other controller can win this turn.
+                result = base.board.predict(i, this, out noResult, false); // The 'false' tells 'predict' to use the other controller's piece.
+
+                // If the controller can place a piece that makes the AI lost a match, add it to the block list.
+                if(!noResult && result == MatchResult.Lost)
+                    blockList.Add(i);
+            }
+
+            // If we couldn't win, try to block.
+            /*if(blockList.Count != 0)
+            {
+                var index = new Random().Next(0, blockList.Count); // Automatically uses time as the seed.
+                base.board.set(blockList[index], this);
+
+                return true;
+            }*/
+
+            return false;
         }
 
         // Uses the statisticallyBest method for choosing a move.
