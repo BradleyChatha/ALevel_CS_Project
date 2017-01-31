@@ -65,51 +65,5 @@ namespace CS_Project.Game.Tests
             var board = new Board();
             board.startMatch(new NullController(), new StupidController());
         }
-
-        class PredictController : Controller
-        {
-            public override void onAfterTurn(Board.Hash boardState, int index)
-            {
-            }
-
-            public override void onDoTurn(Board.Hash boardState, int index)
-            {
-                for (var i = 0; i < 3; i++)
-                {
-                    if (boardState.isEmpty(i))
-                    {
-                        bool noResult;
-                        switch(i)
-                        {
-                            case 0:
-                            case 1:
-                                board.predict(i, this, out noResult);
-                                Assert.IsTrue(noResult);
-                                break;
-
-                            case 2:
-                                Assert.IsTrue(board.predict(i, this, out noResult) == MatchResult.Won);
-                                Assert.IsFalse(noResult);
-
-                                board.predict(i, this, out noResult, false);
-                                Assert.IsTrue(noResult);
-                                break;
-
-                            default: break;
-                        }
-
-                        base.board.set(i, this);
-                        break;
-                    }
-                }
-            }
-        }
-
-        [TestMethod()]
-        public void predictTest()
-        {
-            var board = new Board();
-            board.startMatch(new NullController(), new PredictController());
-        }
     }
 }
