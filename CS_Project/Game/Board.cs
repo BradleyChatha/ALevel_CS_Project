@@ -221,69 +221,6 @@ namespace CS_Project.Game
         }
 
         /// <summary>
-        /// Calculates what the result of the match would be, if 'controller' placed its piece at 'index'.
-        /// </summary>
-        /// <param name="index">The index of where to place the piece.</param>
-        /// <param name="controller">The controller that's placing the piece.</param>
-        /// <param name="noResult">Set to 'true' if the move made wouldn't end the game.</param>
-        /// <param name="myPiece">
-        /// If 'false', then instead of using 'controller's piece, the other controller's piece is used instead.
-        /// The MatchResult that is returned will still be from 'controller's perspective.
-        /// </param>
-        /// <returns>
-        /// If 'noResult' is true, then the returned value should not be used.
-        /// Otherwise, the result of the match for if the controller actually placed it's piece.
-        /// </returns>
-        public MatchResult predict(int index, Controller controller, out bool noResult, bool myPiece = true)
-        {
-            // Keep a copy of some variables.
-            var oldPiece = this._board[index];
-            var oldIndex = this._lastIndex;
-            var oldFlags = this._flags;
-
-            // Figure out which controller's piece to place.
-            Piece toPlace = controller.piece;
-
-            if(!myPiece)
-            {
-                toPlace = (controller.piece == Piece.X) ? Piece.O
-                                                        : Piece.X;
-            }
-
-            Debug.Assert(toPlace != Piece.Empty);
-
-            // Place the piece, and get the result of the match
-            this._board[index] = toPlace;
-
-            bool isTie = false;
-            var winner = this.checkForWin(out isTie);
-
-            MatchResult result = MatchResult.Lost; // Dummy value.
-
-            // If no one won, set noResult to true
-            if(winner == Piece.Empty)
-            {
-                noResult = true;
-            }
-            else
-            {
-                noResult = false;
-
-                // Otherwise, check figure out which MatchResult is correct.
-                     if(isTie)                      result = MatchResult.Tied;
-                else if(winner == controller.piece) result = MatchResult.Won;
-                else                                result = MatchResult.Lost;
-            }
-
-            // Reset the variables to their original values
-            this._board[index] = oldPiece;
-            this._lastIndex    = oldIndex;
-            this._flags        = oldFlags;
-
-            return result;
-        }
-
-        /// <summary>
         /// Determines if the given controller is the controller who's turn it currently is.
         /// </summary>
         /// <param name="controller">The controller to check.</param>
