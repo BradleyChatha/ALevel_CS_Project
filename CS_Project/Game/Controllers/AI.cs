@@ -189,7 +189,9 @@ namespace CS_Project.Game.Controllers
             var average = Average.statisticallyBest(parent);
 
             // If Average.statisticallyBest fails, fall back to doRandom.
-            if(average.path.Count == 0)
+            // Of, if the average win percent of the path is less than 25%, then there's a 25% chance to do a random move.
+            if(average.path.Count == 0 
+            ||(average.averageWinPercent < 25.0 && this._rng.NextDouble() < 0.25))
             {
                 this._useRandom = true;
                 this.doRandom(hash);
