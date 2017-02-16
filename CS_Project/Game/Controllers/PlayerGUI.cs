@@ -21,7 +21,7 @@ namespace CS_Project.Game.Controllers
             this._window.Dispatcher.Invoke(() =>
             {
                 this._window.updateBoard(boardState);
-                this._window.turnLabel.Content = $"It is {turn}'s turn";
+                this._window.updateText(null, $"It is {turn}'s turn");
             });
         }
 
@@ -41,7 +41,7 @@ namespace CS_Project.Game.Controllers
             // When the match starts, tell the player which piece they're using.
             this._window.Dispatcher.Invoke(() => 
             {
-                this._window.userPieceLabel.Content = $"[You are {myPiece}]";
+                this._window.updateText($"[You are {myPiece}]");
             });
         }
 
@@ -60,7 +60,7 @@ namespace CS_Project.Game.Controllers
             this.updateGUI(state, this.piece);
             this._window.Dispatcher.Invoke(() => 
             {
-                this._window.turnLabel.Content      = message;
+                this._window.updateText(null, message);
                 this._window.startButton.Visibility = System.Windows.Visibility.Visible;
             });
 

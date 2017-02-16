@@ -84,17 +84,33 @@ namespace CS_Project
         /// <param name="hash">The 'Hash' containing the state of the board.</param>
         public void updateBoard(Board.Hash hash)
         {
-            var myChar    = (hash.myPiece    == Board.Piece.X) ? "X" : "O";
+            var myChar = (hash.myPiece == Board.Piece.X) ? "X" : "O";
             var otherChar = (hash.otherPiece == Board.Piece.X) ? "X" : "O";
 
             for (var i = 0; i < this._slots.Length; i++)
             {
                 var slot = this._slots[i];
 
-                if(hash.isMyPiece(i))  slot.Content = myChar;
-                if(!hash.isMyPiece(i)) slot.Content = otherChar;
-                if(hash.isEmpty(i))    slot.Content = "";
+                if (hash.isMyPiece(i)) slot.Content = myChar;
+                if (!hash.isMyPiece(i)) slot.Content = otherChar;
+                if (hash.isEmpty(i)) slot.Content = "";
             }
+        }
+
+        /// <summary>
+        /// Updates the two text labels on the screen.
+        /// 
+        /// If a parameter is `null`, then the label won't be changed.
+        /// </summary>
+        /// <param name="topText">The text for the top of the screen.</param>
+        /// <param name="bottomText">The text for the bottom of the screen.</param>
+        public void updateText(string topText, string bottomText = null)
+        {
+            if(topText != null)
+                this.userPieceLabel.Content = topText;
+
+            if(bottomText != null)
+                this.turnLabel.Content = bottomText;
         }
 
         private void onStartMatch(object sender, RoutedEventArgs e)
@@ -176,7 +192,7 @@ namespace CS_Project
                 try
                 {
                     // If no match is being done, listen to the message queue for things.
-                    if (state == GameState.Waiting)
+                    if(state == GameState.Waiting)
                     {
                         // Check for a message every 0.5 seconds.
                         Message msg;
@@ -203,8 +219,8 @@ namespace CS_Project
 
                         this.Dispatcher.Invoke(() => 
                         {
-                            this.userPieceLabel.Content = "[An error has occured]";
-                            this.turnLabel.Content      = "[Please start a new match]";
+                            this.updateText("[An error has occured]",
+                                            "[Please start a new match]");
                         });
                     }
                 }
