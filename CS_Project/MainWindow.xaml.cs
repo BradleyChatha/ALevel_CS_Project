@@ -32,10 +32,19 @@ namespace CS_Project
     /// </summary>
     public partial class MainWindow : Window
     {
+        /// <summary>
+        /// Flags used for the `_flags` field, to keep track of some stuff.
+        /// </summary>
+        private enum Flags : byte
+        {
+            GameRunning = 1 << 0 // Signals that a game is currently running.
+        }
+
         private Thread                  _gameThread;
-        private AI                      _aiInstance; // Since the AI has no way of reading in past data yet, I need to keep a single instance of it so it can 'remember' past games.
-        private Label[]                 _slots;      // The labels that represent the slots on the board.
-        public ConcurrentQueue<Message> gameQueue;   // Used so the gui thread can talk to the game thread.
+        private AI                      _aiInstance;    // Since the AI has no way of reading in past data yet, I need to keep a single instance of it so it can 'remember' past games.
+        private Label[]                 _slots;         // The labels that represent the slots on the board.
+        private Flags                   _flags;         // See the individual flags for details.
+        public ConcurrentQueue<Message> gameQueue;      // Used so the gui thread can talk to the game thread.
 
         public MainWindow()
         {
@@ -113,10 +122,34 @@ namespace CS_Project
                 this.turnLabel.Content = bottomText;
         }
 
+        /// <summary>
+        /// This function is called on the game thread to signal that the match has ended.
+        /// </summary>
+        public void onEndMatch()
+        {
+            if((this._flags & Flags.GameRunning) == 0)
+                throw new InvalidOperationException("Attempted to call onEndMatch while no game is running");
+
+            // Unset the GameRunning flag
+            this._flags &= ~Flags.GameRunning;
+
+            // Make the start button visible again.
+            this.startButton.Visibility = Visibility.Visible;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void onStartMatch(object sender, RoutedEventArgs e)
         {
-            // First, hide the button from being pressed again
+            if ((this._flags & Flags.GameRunning) > 0)
+                throw new InvalidOperationException("Attempted to call onStartMatch while a game is already running");
+
+            // First, hide the button from being pressed again, and set the game running flag.
             this.startButton.Visibility = Visibility.Hidden;
+            this._flags                |= Flags.GameRunning;
 
             // Then, start up a match between the AI and the player
             if(this._aiInstance == null)
@@ -221,6 +254,10 @@ namespace CS_Project
                         {
                             this.updateText("[An error has occured]",
                                             "[Please start a new match]");
+
+                            // Stop the match if one is running.
+                            if((this._flags & Flags.GameRunning) > 0)
+                                this.onEndMatch();
                         });
                     }
                 }

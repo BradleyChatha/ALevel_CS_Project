@@ -61,7 +61,7 @@ namespace CS_Project.Game.Controllers
             this._window.Dispatcher.Invoke(() => 
             {
                 this._window.updateText(null, message);
-                this._window.startButton.Visibility = System.Windows.Visibility.Visible;
+                this._window.onEndMatch();
             });
 
             base.onMatchEnd(state, index, result);
