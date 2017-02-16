@@ -17,7 +17,7 @@ namespace CS_Project.Game
         private const string _treeFolder      = _dataFolder + "trees/";
 
         // File format info
-        public  const byte   treeFileVersion  = 1;     // This is the version that the class supports. It can read older versions, but not newer
+        public  const byte   treeFileVersion  = 2;     // This is the version that the class supports. It can read older versions, but not newer
         private const string _treeFileHeader  = "TREE";
 
         private static string makeTreePath(string path)

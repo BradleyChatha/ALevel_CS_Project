@@ -238,22 +238,22 @@ namespace CS_Project.Game
         /// <summary>
         /// Describes the different board pieces
         /// </summary>
-        public enum Piece
+        public enum Piece : byte
         {
             /// <summary>
             /// The X piece
             /// </summary>
-            X,
+            X = 0,
 
             /// <summary>
             /// The O piece
             /// </summary>
-            O,
+            O = 1,
 
             /// <summary>
             /// An empty board piece
             /// </summary>
-            Empty
+            Empty = 2
         }
 
         /// <summary>
@@ -380,8 +380,8 @@ namespace CS_Project.Game
                 switch (pieceChar)
                 {
                     case Hash.emptyChar: piece = Board.Piece.Empty; break;
-                    case Hash.myChar: piece = this.myPiece; break;
-                    case Hash.otherChar: piece = this.otherPiece; break;
+                    case Hash.myChar:    piece = this.myPiece;      break;
+                    case Hash.otherChar: piece = this.otherPiece;   break;
 
                     default: Debug.Assert(false, "This should not have happened"); break;
                 }
@@ -481,10 +481,29 @@ namespace CS_Project.Game
                 this.checkCorrectness();
                 Debug.Assert(this._hash.Length <= byte.MaxValue, "The hash's length can't fit into a byte.");
 
-                output.Write((byte)this._hash.Length);
-                output.Write((char[])this._hash);
-                output.Write((byte)this.myPiece);
-                output.Write((byte)this.otherPiece);
+                // See 'TREE version 2' in the deserialise function for the format.
+
+                byte[] bytes = new byte[3];
+                for(int i = 0; i < Board.pieceCount; i++)
+                {
+                    var piece     = this.getPiece(i); // The piece at the slot.
+                    var byteIndex = (i * 2) / 8;      // Index into 'bytes' for which byte to modify.
+                    var bitOffset = (i * 2) % 8;      // The offset into the byte to write the data to.
+                    var pieceBits = 0;
+
+                         if(piece == Piece.Empty)     pieceBits = 0;
+                    else if(piece == this.myPiece)    pieceBits = 1;
+                    else if(piece == this.otherPiece) pieceBits = 2;
+
+                    bytes[byteIndex] |= (byte)((byte)pieceBits << bitOffset);
+                }
+
+                // Put in the 'M' and 'O' bits
+                // 0000 0100 = 0x4 (O = X, M = O)
+                // 0000 1000 = 0x8 (O = O, M = X)
+                bytes[2] |= (this.myPiece == Piece.O) ? (byte)0x4 : (byte)0x8;
+
+                output.Write(bytes);
             }
 
             // implement ISerialiseable.deserialise
@@ -493,10 +512,59 @@ namespace CS_Project.Game
                 // TREE version 1
                 if(version == 1)
                 {
-                    var length = input.ReadByte();
-                    this._hash = input.ReadChars(length);
-                    this.myPiece = (Board.Piece)input.ReadByte();
+                    var length      = input.ReadByte();
+                    this._hash      = input.ReadChars(length);
+                    this.myPiece    = (Board.Piece)input.ReadByte();
                     this.otherPiece = (Board.Piece)input.ReadByte();
+                }
+
+                /**
+                 * Format of a hash: (TREE version 2)
+                 * [3 bytes]
+                 * byte 1: 4433 2211
+                 * byte 2: 8877 6655
+                 * byte 3: 0000 MO99
+                 * 
+                 * Numbers such as '11' and '55' represent the Board.Piece in slot '1' and '5', respectively.
+                 * 'M' and 'O' represent the Board.Piece of 'My' piece and 'Other' piece, respectively.
+                 * '0' Represents 'unused'
+                 * 
+                 * For 'M' and 'O':
+                 *   0 = Board.Piece.O
+                 *   1 = Board.Piece.X
+                 *   
+                 *   So if the 'MO' bits were 0x40: M = O, O = X
+                 *   If 'MO' were 0x80:             M = X, O = O
+                 *   
+                 * For '11' to '99':
+                 *   0 = Empty
+                 *   1 = M
+                 *   2 = O
+                 * **/
+                if (version == 2)
+                {
+                    var bytes        = input.ReadBytes(3);
+                    var identityBits = bytes[2] & 0xF; // Idenity = The bits defining 'myPiece' and 'otherPiece'
+                    this.myPiece     = (identityBits & 0x4) == 0x4 ? Piece.O : Piece.X;
+                    this.otherPiece  = (identityBits & 0x4) == 0x4 ? Piece.X : Piece.O;
+
+                    for (int i = 0; i < Board.pieceCount; i++)
+                    {
+                        var byteIndex = (i * 2) / 8;  // Index into 'bytes' for which byte to modify.
+                        var bitOffset = (i * 2) % 8;  // The offset into the byte to write the data to.
+                        var byte_     = bytes[byteIndex];
+                        var piece     = (byte_ >> bitOffset) & 0x3; // 0x3 == 0000 0011
+
+                        switch(piece)
+                        {
+                            case 0: this._hash[i] = Hash.emptyChar; break;
+                            case 1: this._hash[i] = Hash.myChar; break;
+                            case 2: this._hash[i] = Hash.otherChar; break;
+
+                            default:
+                                throw new IOException("");
+                        }
+                    }
                 }
 
                 this.checkCorrectness();

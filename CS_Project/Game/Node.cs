@@ -343,7 +343,7 @@ namespace CS_Project.Game
         public void deserialise(BinaryReader input, uint version)
         {
             // Version 1 of the TREE format.
-            if(version == 1)
+            if(version == 1 || version == 2)
             {
                 this.hash.deserialise(input, version);
                 this.index = input.ReadUInt32();
