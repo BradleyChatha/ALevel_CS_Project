@@ -317,20 +317,11 @@ namespace CS_Project.Game
         // implement ISerialisable.serialise
         public void serialise(BinaryWriter output)
         {
-            /*
-             * Format of a serialised Node(TREE version 1):
-             *  [Serialised Board.Hash of the Node]
-             *  [4 bytes, Node.index]
-             *  [4 bytes, Node.won]
-             *  [4 bytes, Node.lost]
-             *  [1 byte,  Node.children.count]
-             *      [All of the nodes children are then serialised.]
-             * */
-
+            // See the deserialise function for the latest format.
             Debug.Assert(this.children.Count <= byte.MaxValue, "For some reason, this Node has over 255 children e_e?");
 
             this.hash.serialise(output);
-            output.Write((uint)this.index);
+            output.Write((byte)this.index);
             output.Write((uint)this.won);
             output.Write((uint)this.lost);
             output.Write((byte)this.children.Count);
@@ -342,11 +333,19 @@ namespace CS_Project.Game
         // implemented ISerialisable.deserialise
         public void deserialise(BinaryReader input, uint version)
         {
-            // Version 1 of the TREE format.
-            if(version == 1 || version == 2)
+            /*
+             * Format of a serialised Node(TREE version 1 & 2):
+             *  [Serialised Board.Hash of the Node]
+             *  [4 bytes, Node.index] (In TREE version 2, this is a single byte)
+             *  [4 bytes, Node.won]
+             *  [4 bytes, Node.lost]
+             *  [1 byte,  Node.children.count]
+             *      [All of the nodes children are then serialised.]
+             * */
+            if (version == 1 || version == 2)
             {
                 this.hash.deserialise(input, version);
-                this.index = input.ReadUInt32();
+                this.index = (version == 1) ? input.ReadUInt32() : input.ReadByte();
                 this.won   = input.ReadUInt32();
                 this.lost  = input.ReadUInt32();
 
