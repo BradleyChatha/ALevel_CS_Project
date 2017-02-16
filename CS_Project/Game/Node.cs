@@ -314,10 +314,11 @@ namespace CS_Project.Game
             }
         }
 
+        // implement ISerialisable.serialise
         public void serialise(BinaryWriter output)
         {
             /*
-             * Format of a serialised Node:
+             * Format of a serialised Node(TREE version 1):
              *  [Serialised Board.Hash of the Node]
              *  [4 bytes, Node.index]
              *  [4 bytes, Node.won]
@@ -338,20 +339,25 @@ namespace CS_Project.Game
                 node.serialise(output);
         }
 
-        public void deserialise(BinaryReader input)
+        // implemented ISerialisable.deserialise
+        public void deserialise(BinaryReader input, uint version)
         {
-            this.hash.deserialise(input);
-            this.index = input.ReadUInt32();
-            this.won   = input.ReadUInt32();
-            this.lost  = input.ReadUInt32();
-
-            var count     = input.ReadByte();
-            this.children = new List<Node>();
-            for(int i = 0; i < count; i++)
+            // Version 1 of the TREE format.
+            if(version == 1)
             {
-                var node = new Node();
-                node.deserialise(input); 
-                this.children.Add(node);
+                this.hash.deserialise(input, version);
+                this.index = input.ReadUInt32();
+                this.won   = input.ReadUInt32();
+                this.lost  = input.ReadUInt32();
+
+                var count     = input.ReadByte();
+                this.children = new List<Node>();
+                for(int i = 0; i < count; i++)
+                {
+                    var node = new Node();
+                    node.deserialise(input, version); 
+                    this.children.Add(node);
+                }
             }
         }
     }

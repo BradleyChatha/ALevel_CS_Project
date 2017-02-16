@@ -98,12 +98,12 @@ namespace Unittests
                 {
                     var hash = new Hash();
 
-                    hash.deserialise(reader);
+                    hash.deserialise(reader, GameFiles.treeFileVersion);
                     Assert.AreEqual("MO.OM.MOM", hash.ToString());
                     Assert.AreEqual(Board.Piece.X, hash.myPiece);
                     Assert.AreEqual(Board.Piece.O, hash.otherPiece);
 
-                    hash.deserialise(reader);
+                    hash.deserialise(reader, GameFiles.treeFileVersion);
                     Assert.AreEqual("OM.MO.OMO", hash.ToString());
                     Assert.AreEqual(Board.Piece.O, hash.myPiece);
                     Assert.AreEqual(Board.Piece.X, hash.otherPiece);

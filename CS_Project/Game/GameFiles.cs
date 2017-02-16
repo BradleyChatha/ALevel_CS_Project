@@ -17,7 +17,7 @@ namespace CS_Project.Game
         private const string _treeFolder      = _dataFolder + "trees/";
 
         // File format info
-        private const byte   _treeFileVersion = 1;     // This is the version that the class supports. It can read older versions, but not newer
+        public  const byte   treeFileVersion  = 1;     // This is the version that the class supports. It can read older versions, but not newer
         private const string _treeFileHeader  = "TREE";
 
         private static string makeTreePath(string path)
@@ -90,7 +90,7 @@ namespace CS_Project.Game
                      *  [X bytes, serialised tree]
                      * */
                     bw.Write((char[])GameFiles._treeFileHeader.ToCharArray());
-                    bw.Write((byte)GameFiles._treeFileVersion);
+                    bw.Write((byte)GameFiles.treeFileVersion);
                     root.serialise(bw);
                 }
             }
@@ -126,13 +126,13 @@ namespace CS_Project.Game
 
                     // Then read in the version number, and make sure we can read it in.
                     byte version = br.ReadByte();
-                    if(version > GameFiles._treeFileVersion)
+                    if(version > GameFiles.treeFileVersion)
                         throw new IOException($"Unable to load tree {name} as it uses a newer version of the TREE format.\n"
-                                            + $"File version: {version} | Highest Supported version: {GameFiles._treeFileVersion}");
+                                            + $"File version: {version} | Highest Supported version: {GameFiles.treeFileVersion}");
 
                     // Then unserialise the tree.
                     var root = Node.root;
-                    root.deserialise(br);
+                    root.deserialise(br, version);
 
                     return root;
                 }

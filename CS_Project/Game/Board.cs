@@ -488,12 +488,16 @@ namespace CS_Project.Game
             }
 
             // implement ISerialiseable.deserialise
-            public void deserialise(BinaryReader input)
+            public void deserialise(BinaryReader input, uint version)
             {
-                var length = input.ReadByte();
-                this._hash = input.ReadChars(length);
-                this.myPiece = (Board.Piece)input.ReadByte();
-                this.otherPiece = (Board.Piece)input.ReadByte();
+                // TREE version 1
+                if(version == 1)
+                {
+                    var length = input.ReadByte();
+                    this._hash = input.ReadChars(length);
+                    this.myPiece = (Board.Piece)input.ReadByte();
+                    this.otherPiece = (Board.Piece)input.ReadByte();
+                }
 
                 this.checkCorrectness();
             }

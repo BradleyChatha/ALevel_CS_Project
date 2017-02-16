@@ -98,7 +98,7 @@ namespace CS_Project.Game.Tests
                 using (var reader = new BinaryReader(stream))
                 {
                     var root = Node.root;
-                    root.deserialise(reader);
+                    root.deserialise(reader, GameFiles.treeFileVersion);
 
                     var n = root.children[0]; // Current node we're asserting
                     Assert.AreEqual(new Hash(Board.Piece.X, $"{m}........"), n.hash);
