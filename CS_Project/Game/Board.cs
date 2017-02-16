@@ -544,13 +544,13 @@ namespace CS_Project.Game
                 if (version == 2)
                 {
                     var bytes        = input.ReadBytes(3);
-                    var identityBits = bytes[2] & 0xF; // Idenity = The bits defining 'myPiece' and 'otherPiece'
+                    var identityBits = bytes[2] & 0xC; // Idenity = The bits defining 'myPiece' and 'otherPiece'. 0xC = 1100
                     this.myPiece     = (identityBits & 0x4) == 0x4 ? Piece.O : Piece.X;
                     this.otherPiece  = (identityBits & 0x4) == 0x4 ? Piece.X : Piece.O;
 
                     for (int i = 0; i < Board.pieceCount; i++)
                     {
-                        var byteIndex = (i * 2) / 8;  // Index into 'bytes' for which byte to modify.
+                        var byteIndex = (i * 2) / 8;  // Index into 'bytes' for which byte to use.
                         var bitOffset = (i * 2) % 8;  // The offset into the byte to write the data to.
                         var byte_     = bytes[byteIndex];
                         var piece     = (byte_ >> bitOffset) & 0x3; // 0x3 == 0000 0011
