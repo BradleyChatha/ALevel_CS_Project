@@ -37,7 +37,8 @@ namespace CS_Project
         /// </summary>
         private enum Flags : byte
         {
-            GameRunning = 1 << 0 // Signals that a game is currently running.
+            GameRunning = 1 << 0,   // Signals that a game is currently running.
+            CanPlacePiece = 1 << 1, // Signals that the player is allowed to try and place a piece.
         }
 
         private Thread                  _gameThread;
@@ -78,6 +79,13 @@ namespace CS_Project
         // which slot was pressed.
         private void onSlotPress(object sender, MouseEventArgs e)
         {
+            // Don't do anything if the player isn't allowed to place a piece yet.
+            if ((this._flags & Flags.CanPlacePiece) == 0)
+                return;
+
+            // Lock the game board
+            this._flags &= ~Flags.CanPlacePiece;
+
             // Only labels should be using this
             var label = sender as Label;
 
@@ -93,16 +101,16 @@ namespace CS_Project
         /// <param name="hash">The 'Hash' containing the state of the board.</param>
         public void updateBoard(Board.Hash hash)
         {
-            var myChar = (hash.myPiece == Board.Piece.X) ? "X" : "O";
+            var myChar    = (hash.myPiece == Board.Piece.X) ? "X" : "O";
             var otherChar = (hash.otherPiece == Board.Piece.X) ? "X" : "O";
 
             for (var i = 0; i < this._slots.Length; i++)
             {
                 var slot = this._slots[i];
 
-                if (hash.isMyPiece(i)) slot.Content = myChar;
+                if (hash.isMyPiece(i))  slot.Content = myChar;
                 if (!hash.isMyPiece(i)) slot.Content = otherChar;
-                if (hash.isEmpty(i)) slot.Content = "";
+                if (hash.isEmpty(i))    slot.Content = "";
             }
         }
 
@@ -130,29 +138,33 @@ namespace CS_Project
             if((this._flags & Flags.GameRunning) == 0)
                 throw new InvalidOperationException("Attempted to call onEndMatch while no game is running");
 
-            // Unset the GameRunning flag
+            // Unset some flags
             this._flags &= ~Flags.GameRunning;
+            this._flags &= ~Flags.CanPlacePiece;
 
             // Make the start button visible again.
             this.startButton.Visibility = Visibility.Visible;
         }
 
         /// <summary>
-        /// 
+        /// This function is called when the 'Start Match' button is pressed.
+        /// It begins a match between the AI and the player.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void onStartMatch(object sender, RoutedEventArgs e)
         {
-            if ((this._flags & Flags.GameRunning) > 0)
+            // Error checking
+            if((this._flags & Flags.GameRunning) > 0)
                 throw new InvalidOperationException("Attempted to call onStartMatch while a game is already running");
 
             // First, hide the button from being pressed again, and set the game running flag.
             this.startButton.Visibility = Visibility.Hidden;
             this._flags                |= Flags.GameRunning;
+            this._flags                |= Flags.CanPlacePiece;
 
             // Then, start up a match between the AI and the player
-            if(this._aiInstance == null)
+            if(this._aiInstance == null) // Use only a single instance of the AI, so it doesn't have to reload the global tree over and over.
             {
                 #if DEBUG
                 this._aiInstance = new AI(new NodeDebugWindow(), new NodeDebugWindow());
@@ -161,6 +173,7 @@ namespace CS_Project
                 #endif
             }
 
+            // Then send a message to start a match.
             this.gameQueue.Enqueue(new StartMatchMessage
             {
                 xCon = new PlayerGUIController(this),
@@ -197,6 +210,14 @@ namespace CS_Project
     // This part of the partial MainWindow class is for anything ran on or related to the Game thread.
     public partial class MainWindow : Window
     {
+        /// <summary>
+        /// Called by the Game thread to signal that the player is allowed to place their piece again.
+        /// </summary>
+        public void unlockBoard()
+        {
+            this._flags |= Flags.CanPlacePiece;
+        }
+
         // Any exception thrown in the game thread is passed to this function (In the UI thread)
         // so that the UI can inform the user about something going wrong.
         public void reportException(Exception ex)

@@ -78,9 +78,12 @@ namespace CS_Project.Game.Controllers
             // Update the GUI to display the opponent's last move, as well as to tell the user it's their turn.
             this.updateGUI(boardState, this.piece);
 
-            // Clear the message queue, to prevent old PlayerPlaceMessages from being processed
-            Message m;
-            while(this._window.gameQueue.TryDequeue(out m)) { }
+            // Let the player choose their piece
+            // Note: This does not go through the dispatcher, since it can make it seem like the GUI drops input
+            // (due to the latency of Dispatcher.Invoke). It *shouldn't* create a data-race, since nothing should be accessing it
+            // when this code is running.
+            // It's worth keeping this line in mind though, future me, in case strange things happen.
+            this._window.unlockBoard();
 
             // Wait for the GUI to have signaled that the player has made a move.
             Message msg;
