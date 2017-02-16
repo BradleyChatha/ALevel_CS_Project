@@ -166,11 +166,21 @@ namespace CS_Project
             // Then, start up a match between the AI and the player
             if(this._aiInstance == null) // Use only a single instance of the AI, so it doesn't have to reload the global tree over and over.
             {
-                #if DEBUG
-                this._aiInstance = new AI(new NodeDebugWindow(), new NodeDebugWindow());
-                #else
-                this._aiInstance = new AI(null, null);
-                #endif
+                try
+                {
+                    #if DEBUG
+                    this._aiInstance = new AI(new NodeDebugWindow(), new NodeDebugWindow());
+                    #else
+                    this._aiInstance = new AI(null, null);
+                    #endif
+                }
+                catch(Exception ex)
+                {
+                    this.reportException(ex);
+                    this.updateText("[THE AI CANNOT BE LOADED]", "[ERROR]");
+                    this.onEndMatch();
+                    return;
+                }
             }
 
             // Then send a message to start a match.
