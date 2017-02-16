@@ -11,6 +11,6 @@ namespace CS_Project.Game
     /// </summary>
     public static class Config
     {
-        public const string versionString = "v0.2.1 prototype";
+        public const string versionString = "v0.2.1";
     }
 }
