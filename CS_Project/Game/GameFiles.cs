@@ -107,35 +107,40 @@ namespace CS_Project.Game
         /// </returns>
         public static Node loadTree(string name, bool shouldThrow = true)
         {
-            if(!GameFiles.treeExists(name))
+            try
+            {
+                if(!GameFiles.treeExists(name))
+                    throw new FileNotFoundException($"Unable to load tree {name} as it does not exist.", GameFiles.makeTreePath(name));
+
+                using (var fs = new FileStream(GameFiles.makeTreePath(name), FileMode.Open))
+                {
+                    using (var br = new BinaryReader(fs))
+                    {
+                        // Make sure the header is correct
+                        string header = new string(br.ReadChars(GameFiles._treeFileHeader.Length));
+                        if(header != GameFiles._treeFileHeader)
+                            throw new IOException($"Unable to load tree {name} as it's header is incorrect: '{header}'");
+
+                        // Then read in the version number, and make sure we can read it in.
+                        byte version = br.ReadByte();
+                        if(version > GameFiles.treeFileVersion)
+                            throw new IOException($"Unable to load tree {name} as it uses a newer version of the TREE format.\n"
+                                                + $"File version: {version} | Highest Supported version: {GameFiles.treeFileVersion}");
+
+                        // Then unserialise the tree.
+                        var root = Node.root;
+                        root.deserialise(br, version);
+
+                        return root;
+                    }
+                }
+            }
+            catch(Exception ex)
             {
                 if(shouldThrow)
-                    throw new FileNotFoundException($"Unable to load tree {name} as it does not exist.", GameFiles.makeTreePath(name));
-                else
-                    return null;
-            }
+                    throw ex;
 
-            using (var fs = new FileStream(GameFiles.makeTreePath(name), FileMode.Open))
-            {
-                using (var br = new BinaryReader(fs))
-                {
-                    // Make sure the header is correct
-                    string header = new string(br.ReadChars(GameFiles._treeFileHeader.Length));
-                    if(header != GameFiles._treeFileHeader)
-                        throw new IOException($"Unable to load tree {name} as it's header is incorrect: '{header}'");
-
-                    // Then read in the version number, and make sure we can read it in.
-                    byte version = br.ReadByte();
-                    if(version > GameFiles.treeFileVersion)
-                        throw new IOException($"Unable to load tree {name} as it uses a newer version of the TREE format.\n"
-                                            + $"File version: {version} | Highest Supported version: {GameFiles.treeFileVersion}");
-
-                    // Then unserialise the tree.
-                    var root = Node.root;
-                    root.deserialise(br, version);
-
-                    return root;
-                }
+                return null;
             }
         }
     }
