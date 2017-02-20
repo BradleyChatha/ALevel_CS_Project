@@ -67,6 +67,9 @@ namespace CS_Project
 
             // Misc.
             this.Title += $" {Config.versionString}";
+
+            if(GameFiles.shouldShowHelpMessage())
+                MessageBox.Show(Config.helpBoxInfo, "How to play", MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
         // If we don't abort the game thread, then the program will stay alive in the background.

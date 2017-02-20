@@ -15,9 +15,10 @@ namespace CS_Project.Game
         // Data paths
         private const string _dataFolder      = "data/";
         private const string _treeFolder      = _dataFolder + "trees/";
+        private const string _helpFileFlag    = _dataFolder + "help_was_shown";
 
-        // File format info
-        public  const byte   treeFileVersion  = 2;     // This is the version that the class supports. It can read older versions, but not newer
+        // File format info (For .tree files)
+        public const byte    treeFileVersion  = 2;     // This is the version that the class supports. It can read older versions, but not newer
         private const string _treeFileHeader  = "TREE";
 
         private static string makeTreePath(string path)
@@ -142,6 +143,24 @@ namespace CS_Project.Game
 
                 return null;
             }
+        }
+
+        /// <summary>
+        /// This function determines if the game should display the help message box.
+        /// 
+        /// If this function returns `true`, a file is created in the 'data' folder which will then
+        /// make this function always return `false` while the file exists.
+        /// </summary>
+        /// <returns>`true` if the help box should be displayed. `false` otherwise.</returns>
+        public static bool shouldShowHelpMessage()
+        {
+            if(!File.Exists(GameFiles._helpFileFlag))
+            {
+                File.Create(GameFiles._helpFileFlag).Dispose();
+                return true;
+            }
+
+            return false;
         }
     }
 }
