@@ -156,11 +156,8 @@ namespace CS_Project.Game
                 #endregion
 
                 #region Misc stuff
-                wonPiece = this.checkForWin(out isTie);
-                if(turnPiece == Piece.X)
-                    turnPiece = Piece.O;
-                else
-                    turnPiece = Piece.X;
+                wonPiece  = this.checkForWin(out isTie); // See if someone's won/tied yet.
+                turnPiece = (turnPiece == Piece.X) ? Piece.O : Piece.X; // Change who's turn it is
                 #endregion
             }
             #endregion
