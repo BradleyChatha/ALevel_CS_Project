@@ -78,7 +78,9 @@
                 <MenuItem Header="Debug" Visibility="{x:Static local:MainWindow.debugVisibility}">
                     <MenuItem x:Name="debug_throwException" Header="Throw an Exception in game thread" Click="debug_throwException_Click" />
                 </MenuItem>
-            </Menu>    
+
+                <MenuItem x:Name="menu_help" Header="Help" Click="menu_help_Click"/>
+            </Menu>
         </DockPanel>
     </Grid>
 </Window>

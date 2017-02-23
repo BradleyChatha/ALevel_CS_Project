@@ -37,7 +37,7 @@ namespace CS_Project
         /// </summary>
         private enum Flags : byte
         {
-            GameRunning = 1 << 0,   // Signals that a game is currently running.
+            GameRunning   = 1 << 0, // Signals that a game is currently running.
             CanPlacePiece = 1 << 1, // Signals that the player is allowed to try and place a piece.
         }
 
@@ -69,7 +69,13 @@ namespace CS_Project
             this.Title += $" {Config.versionString}";
 
             if(GameFiles.shouldShowHelpMessage())
-                MessageBox.Show(Config.helpBoxInfo, "How to play", MessageBoxButton.OK, MessageBoxImage.Information);
+                this.showHelpBox();
+        }
+
+        // A simple function, that simply shows the help box.
+        private void showHelpBox()
+        {
+            MessageBox.Show(Config.helpBoxInfo, "How to play", MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
         // If we don't abort the game thread, then the program will stay alive in the background.
@@ -217,6 +223,12 @@ namespace CS_Project
         private void debug_throwException_Click(object sender, RoutedEventArgs e)
         {
             this.gameQueue.Enqueue(new ThrowExceptionMessage());
+        }
+
+        // Shows the help box when the user clicks 'Help'
+        private void menu_help_Click(object sender, RoutedEventArgs e)
+        {
+            this.showHelpBox();
         }
     }
 
