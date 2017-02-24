@@ -199,7 +199,7 @@ namespace CS_Project.Game.Controllers
             }
 
             // Otherwise, get the first node. Make sure it's a move we make. Then perform it!
-            var node    = average.path[0];
+            var node = average.path[0];
             Debug.Assert(node.hash.isMyPiece((int)node.index), "Something's gone a *bit* wrong.");
 
             base.board.set((int)node.index, this);

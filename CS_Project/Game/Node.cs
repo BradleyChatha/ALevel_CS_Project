@@ -199,21 +199,24 @@ namespace CS_Project.Game
             if(action == null)
                 throw new ArgumentNullException("action");
 
-            var path = new List<Node>();
+            var path = new List<Node>(); // Stores the nodes that make up the current path.
 
+            // A closure, which is used recursively to travel through the tree.
             Func<Node, bool, bool> walk = null;
             walk = delegate (Node node, bool noAdd)
             {
-                if (!noAdd) // Used so we don't add in the root node
+                if(!noAdd) // Used so we don't add in the root node
                     path.Add(node);
 
-                if (node.children.Count == 0)
+                // If the node is childless, then we're at the end of a path, so perform the action on it.
+                if(node.children.Count == 0)
                 {
                     action(path);
                 }
                 else
                 {
-                    foreach (var child in node.children)
+                    // Otherwise, go through all of the node's children, and call 'walk' on them as well.
+                    foreach(var child in node.children)
                     {
                         walk(child, false);
                         path.RemoveAt(path.Count - 1); // Shrink the list by 1 once its done, so we don't have to create a new list.
@@ -223,6 +226,7 @@ namespace CS_Project.Game
                 return false; // Dummy value
             };
 
+            // Walk through this node first. This node is treated as the root, so is never added to any paths.
             walk(this, true);
         }
 
@@ -342,7 +346,7 @@ namespace CS_Project.Game
              *  [1 byte,  Node.children.count]
              *      [All of the nodes children are then serialised.]
              * */
-            if (version == 1 || version == 2)
+            if(version == 1 || version == 2)
             {
                 this.hash.deserialise(input, version);
                 this.index = (version == 1) ? input.ReadUInt32() : input.ReadByte();
