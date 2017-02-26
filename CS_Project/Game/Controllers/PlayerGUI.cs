@@ -107,7 +107,10 @@ namespace CS_Project.Game.Controllers
                 // Otherwise, see if the placement is valid, and perform it.
                 var info = msg as PlayerPlaceMessage;
                 if(!boardState.isEmpty(info.index))
+                {
+                    this._window.unlockBoard(); // Unlock the board, otherwise the game soft-locks
                     continue;
+                }
 
                 this.board.set(info.index, this);
                 break;
