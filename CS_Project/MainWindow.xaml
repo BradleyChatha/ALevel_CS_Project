@@ -43,7 +43,7 @@
             <Border BorderBrush="Black" BorderThickness="2" Grid.Column="1" Grid.Row="2"/>
             <Border BorderBrush="Black" BorderThickness="2" Grid.Column="2" Grid.Row="2"/>
 
-            <Label x:Name="slot0" Content="X" HorizontalAlignment="Stretch" Margin="0,0,0,0" VerticalAlignment="Stretch"
+            <Label x:Name="slot0" Content="" HorizontalAlignment="Stretch" Margin="0,0,0,0" VerticalAlignment="Stretch"
                    Grid.Column="0" Grid.Row="0" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
             <Label x:Name="slot1" Content="" HorizontalAlignment="Stretch" Margin="0,0,0,0" VerticalAlignment="Stretch"
                    Grid.Column="1" Grid.Row="0" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
@@ -62,11 +62,11 @@
             <Label x:Name="slot8" Content="" HorizontalAlignment="Stretch" Margin="0,0,0,0" VerticalAlignment="Stretch"
                    Grid.Column="2" Grid.Row="2" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
         </Grid>
-        <Label x:Name="userPieceLabel" Content="[User's piece here]" 
+        <Label x:Name="userPieceLabel" Content="" 
                HorizontalAlignment="Stretch" Margin="0,27,0,0" VerticalAlignment="Top" HorizontalContentAlignment="Center"
                FontSize="24" FontFamily="Lucida Console" FontWeight="Bold"
                Foreground="#FF781313" Style="{x:Null}"/>
-        <Label x:Name="turnLabel" Content="[Who's Turn Here]" 
+        <Label x:Name="turnLabel" Content="" 
                HorizontalAlignment="Stretch" Margin="0,380,0,0" VerticalAlignment="Top" HorizontalContentAlignment="Center"
                FontSize="24" FontFamily="Lucida Console" FontWeight="Bold"
                Foreground="#FF5F871A" Style="{x:Null}" />
