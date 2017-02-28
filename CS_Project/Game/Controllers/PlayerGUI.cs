@@ -21,7 +21,7 @@ namespace CS_Project.Game.Controllers
             this._window.Dispatcher.Invoke(() =>
             {
                 this._window.updateBoard(boardState);
-                this._window.updateText(null, $"It is {turn}'s turn");
+                this._window.updateText(null, (turn == base.piece) ? "It is your turn" : "The AI is thinking...");
             });
         }
 
