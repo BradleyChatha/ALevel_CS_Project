@@ -91,6 +91,13 @@ namespace CS_Project.Game.Tests
             }
             catch (Exception) { }
 
+            try
+            {
+                GameFiles.saveTree("s", null); // Cannot pass a null root node.
+                Assert.Fail("No exception was thrown.");
+            }
+            catch (Exception) { }
+
             Assert.IsNull(GameFiles.loadTree("", false));
             
             try

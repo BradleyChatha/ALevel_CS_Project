@@ -13,14 +13,17 @@ namespace CS_Project.Game
     public static class GameFiles
     {
         // Data paths
-        private const string _dataFolder      = "data/";
-        private const string _treeFolder      = _dataFolder + "trees/";
-        private const string _helpFileFlag    = _dataFolder + "help_was_shown";
+        private const string _dataFolder      = "data/";                        // Path to where all the data is stored.
+        private const string _treeFolder      = _dataFolder + "trees/";         // Path to where the trees are stored.
+        private const string _helpFileFlag    = _dataFolder + "help_was_shown"; // Path to where the "show help" file is stored.
 
         // File format info (For .tree files)
-        public const byte    treeFileVersion  = 2;     // This is the version that the class supports. It can read older versions, but not newer
-        private const string _treeFileHeader  = "TREE";
+        public const byte    treeFileVersion  = 2;      // This is the version that the class supports. It can read older versions, but not newer
+        private const string _treeFileHeader  = "TREE"; // The "magic number" for a .tree file.
 
+        /// <summary>
+        /// Combines `path` with the path to the tree folder.
+        /// </summary>
         private static string makeTreePath(string path)
         {
             var finalPath = Path.Combine(GameFiles._treeFolder, path + ".tree");
@@ -28,8 +31,12 @@ namespace CS_Project.Game
             return finalPath;
         }
 
+        /// <summary>
+        /// Makes sure the data folder, and the tree folder exist.
+        /// </summary>
         private static void ensureDirectories()
         {
+            // The directories to check for.
             var directories = new string[] { GameFiles._dataFolder, GameFiles._treeFolder };
 
             foreach(var dir in directories)
@@ -42,7 +49,9 @@ namespace CS_Project.Game
         /// <summary>
         /// Determines whether a tree with a specific name exists.
         /// </summary>
+        /// 
         /// <param name="name">The name of the tree to search for.</param>
+        /// 
         /// <returns>True if the tree exists. False otherwise.</returns>
         public static bool treeExists(string name)
         {
@@ -52,6 +61,9 @@ namespace CS_Project.Game
         /// <summary>
         /// Removes a tree with a specific name.
         /// </summary>
+        /// 
+        /// <exception cref="System.IO.FileNotFoundException">Thrown if `shouldThrow` is true, and a tree called `name` does not exist.</exception>
+        /// 
         /// <param name="name">The name of the tree to remove</param>
         /// <param name="shouldThrow">If True, then this function will throw a FileError if the tree does not exist.</param>
         public static void removeTree(string name, bool shouldThrow = false)
@@ -65,6 +77,10 @@ namespace CS_Project.Game
         /// <summary>
         /// Saves a tree to a file.
         /// </summary>
+        /// 
+        /// <exception cref="System.ArgumentNullException">Thrown if `root` is null.</exception>
+        /// <exception cref="System.IO.IOException">Thrown if `overwrite` is false, and a tree called `name` already exists.</exception>
+        /// 
         /// <param name="name">The name to give the tree.</param>
         /// <param name="root">The root node of the tree.</param>
         /// <param name="overwrite">
@@ -79,6 +95,7 @@ namespace CS_Project.Game
             if(!overwrite && GameFiles.treeExists(name))
                 throw new IOException($"Unable to save tree {name} as it already exists, and overwrite is set to false.");
 
+            // Make sure the tree directory exists, then serialise `root` into a new tree file.
             GameFiles.ensureDirectories();
             using (var fs = new FileStream(GameFiles.makeTreePath(name), FileMode.Create))
             {
@@ -100,8 +117,13 @@ namespace CS_Project.Game
         /// <summary>
         /// Loads a previously saved tree.
         /// </summary>
+        /// 
+        /// <exception cref="System.IO.FileNotFoundException">Thrown if a tree called `name` doesn't exist.</exception>
+        /// <exception cref="System.IO.IOException">Thrown if the tree file is malformed in some way, and cannot be loaded.</exception>
+        /// 
         /// <param name="name">The name of the tree to load.</param>
         /// <param name="shouldThrow">If True, then an exception is thrown if 'name' doesn't exist.</param>
+        /// 
         /// <returns>
         /// The root node of the tree saved as 'name'.
         /// Null is returned if 'shouldThrow' is False, and 'name' doesn't exist.
