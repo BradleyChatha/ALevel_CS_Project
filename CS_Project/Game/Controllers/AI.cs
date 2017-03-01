@@ -5,6 +5,9 @@ using System.Linq;
 
 namespace CS_Project.Game.Controllers
 {
+    /// <summary>
+    /// The controller that provides the AI.
+    /// </summary>
     public sealed class AI : Controller
     {
         // Trees

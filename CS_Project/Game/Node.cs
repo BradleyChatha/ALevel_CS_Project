@@ -3,9 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 
-/// <summary>
-/// Contains the Move Tree.
-/// </summary>
 namespace CS_Project.Game
 {
     // This is a private class used in Node.merge to keep track of some data.
@@ -21,7 +18,9 @@ namespace CS_Project.Game
     }
 
     /// <summary>
-    /// A node describing a single move.
+    /// A node describing a single move of a tic-tac-toe match.
+    /// 
+    /// A node may also contain other children nodes, which together represent a tree of moves.
     /// </summary>
     public class Node : ICloneable, ISerialiseable
     {
@@ -377,9 +376,9 @@ namespace CS_Project.Game
     }
 
     /// <summary>
-    /// Contains a node path, and can calculate the average win percentage of the path.
+    /// Contains a node path (array of nodes), and can calculate the average win percentage of the path.
     /// 
-    /// Also contains static functions to help find, for example, the path that will most likely result in a win.
+    /// Also contains static functions to help find, for example, the path in a tree that will most likely result in a win.
     /// </summary>
     public class Average
     {
@@ -390,6 +389,8 @@ namespace CS_Project.Game
 
         /// <summary>
         /// Calculates the average win percentage of the path.
+        /// 
+        /// This is an O(n) algorithm, where 'n' is how many nodes are in the `path`.
         /// </summary>
         public float averageWinPercent
         {

@@ -12,6 +12,8 @@ namespace CS_Project.Game
 {
     /// <summary>
     /// Contains the state of the game board, and provides an interface to manipulate it.
+    /// 
+    /// This class also provides a 'game loop' for a tic-tac-toe match.
     /// </summary>
     public partial class Board
     {
@@ -247,6 +249,7 @@ namespace CS_Project.Game
 
     // This part of 'Board' is used for anything that should be accessed like "Board.Piece"
     // Wheras the other part is for the actual board class.
+    // This is done simply because I prefer "Board.Piece.X" to "Piece.X"
     public partial class Board
     {
         /// <summary>
