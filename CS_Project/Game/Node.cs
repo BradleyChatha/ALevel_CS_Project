@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 /// </summary>
 namespace CS_Project.Game
 {
-    // Private class used in Node.merge to keep track of some data.
+    // This is a private class used in Node.merge to keep track of some data.
     // NodeMergeInfo keeps track of two versions of a node, and an index.
     // The 'node' Node is the version of the node that's in the 'source' tree.
     // The 'parent' Node is the version of the node that's in the 'destination' tree
@@ -91,11 +91,13 @@ namespace CS_Project.Game
         /// <summary>
         /// Creates a new Node
         /// </summary>
+        /// 
+        /// <exception cref="System.ArgumentNullException">When `hash` is null.</exception>
+        /// 
         /// <param name="hash">The 'Board.Hash' of the board after the move was made.</param>
         /// <param name="index">The index of the slot that was changed.</param>
         /// <param name="won">How many times this move was used in a won match.</param>
         /// <param name="lost">The opposite of 'won'.</param>
-        /// <exception cref="System.ArgumentNullException">When `hash` is null.</exception>
         public Node(Board.Hash hash, uint index, uint won = 0, uint lost = 0)
         {
             if (hash == null)
@@ -120,6 +122,7 @@ namespace CS_Project.Game
         /// <summary>
         /// Clones the node, and all of it's children.
         /// </summary>
+        /// 
         /// <returns>A clone of this node.</returns>
         public object Clone()
         {
@@ -135,12 +138,17 @@ namespace CS_Project.Game
         /// Given a list of hashes, walks through this tree of nodes, up to a certain depth, and performs
         /// an action on every node walked to.
         /// </summary>
+        /// 
+        /// <exception cref="System.ArgumentNullException">Thrown if `path` or `action` is null.</exception>
+        /// <exception cref="System.ArgumentOutOfRangeException">Thrown if `depth` is 0.</exception>
+        /// 
         /// <param name="path">The path of hashes to follow.</param>
         /// <param name="action">The action to perform on every node followed.</param>
         /// <param name="depth">The maximum amount of nodes to walk to (inclusive).</param>
+        /// 
         /// <returns>
-        /// 'true' if the entire 'path' was walked, or if 'depth' amount of nodes were walked to. 
-        /// 'false' if the 'path' was cut short.
+        ///     'true' if the entire 'path' was walked, or if 'depth' amount of nodes were walked to. 
+        ///     'false' if the 'path' was cut short.
         /// </returns>
         public bool walk(IList<Board.Hash> path, Action<Node> action, uint depth = uint.MaxValue)
         {
@@ -189,10 +197,13 @@ namespace CS_Project.Game
         /// <summary>
         /// Walks over every possible path in the node tree, and calls an action on each path.
         /// </summary>
+        /// 
+        /// <exception cref="System.ArgumentNullException">Thrown if `action` is null.</exception>
+        /// 
         /// <param name="action">
-        /// The action to perform on every path. 
-        /// Note that the parameter given is not a copy of the original, so anytime the parameter is stored somewhere,
-        /// a copy should be created.
+        ///     The action to perform on every path. 
+        ///     Note that the parameter given is not a copy of the original, so anytime the parameter is stored somewhere,
+        ///     a copy should be created.
         /// </param>
         public void walkEveryPath(Action<List<Node>> action)
         {
@@ -235,6 +246,9 @@ namespace CS_Project.Game
         /// 
         /// Any nodes in 'source' that don't belong in 'destination' will be created.
         /// </summary>
+        /// 
+        /// <exception cref="System.ArgumentNullException">Thrown if `destination` or `source` is null.</exception>
+        /// 
         /// <param name="destination">The tree that will be modified.</param>
         /// <param name="source">The tree providing the nodes to merge.</param>
         public static void merge(Node destination, Node source)
@@ -405,10 +419,19 @@ namespace CS_Project.Game
         /// <summary>
         /// Finds the path in 'root' that is statistically the most likely to win.
         /// </summary>
+        /// 
+        /// <exception cref="System.ArgumentNullException">Thrown if `root` is null.</exception>
+        /// 
         /// <param name="root">The root node to search through.</param>
+        /// 
         /// <returns>An 'Average' containing the path with the highest win percent.</returns>
         public static Average statisticallyBest(Node root)
         {
+            if(root == null)
+                throw new ArgumentNullException("root");
+
+            // All this function does, is keep track of the path with the highest averageWinPercent.
+            // This shows off the power/reusability of Node.walkEveryPath
             var pathAverage = new Average();
             var bestAverage = new Average();
 

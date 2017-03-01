@@ -29,6 +29,7 @@ namespace CS_Project.Game
         /// <summary>
         /// Updates the data shown in the tree view.
         /// </summary>
+        /// 
         /// <param name="root">The root of the tree to display.</param>
         public void updateNodeData(Node root)
         {
@@ -45,9 +46,9 @@ namespace CS_Project.Game
                     // So we can just check the names to make sure we're not duplicating data.
                     var  nodeName   = node.hash.ToString().Replace('.', '_'); // WPF names can't use full stops.
                     bool doContinue = false;
-                    foreach (ItemsControl con in parent.Items)
+                    foreach(ItemsControl con in parent.Items)
                     {
-                        if (con.Name == nodeName)
+                        if(con.Name == nodeName)
                         {
                             parent     = con as TreeViewItem;
                             doContinue = true;
@@ -55,7 +56,7 @@ namespace CS_Project.Game
                         }
                     }
 
-                    if (doContinue)
+                    if(doContinue)
                         continue;
 
                     // Then, make the new node
@@ -78,6 +79,7 @@ namespace CS_Project.Game
         /// <summary>
         /// Updates the status text in the debug window. (The textbox at the bottom)
         /// </summary>
+        /// 
         /// <param name="status">The status to change to.</param>
         public void updateStatusText(string status)
         {

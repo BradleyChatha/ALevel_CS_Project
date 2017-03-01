@@ -20,6 +20,9 @@ using CS_Project.Game.Controllers;
 
 namespace CS_Project
 {
+    /// <summary>
+    /// Represents the state of the game thread.
+    /// </summary>
     enum GameState
     {
         Waiting,    // The game thread is waiting for messages to be sent to it.
@@ -78,6 +81,7 @@ namespace CS_Project
             MessageBox.Show(Config.helpBoxInfo, "How to play", MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
+        // Abort the game thread once the window is closed.
         // If we don't abort the game thread, then the program will stay alive in the background.
         private void MainWindow_Closed(object sender, EventArgs e)
         {
@@ -107,19 +111,22 @@ namespace CS_Project
         /// <summary>
         /// Updates the game board to reflect the given hash.
         /// </summary>
+        /// 
         /// <param name="hash">The 'Hash' containing the state of the board.</param>
         public void updateBoard(Board.Hash hash)
         {
-            var myChar    = (hash.myPiece == Board.Piece.X) ? "X" : "O";
+            // Figure out which characters to use.
+            var myChar    = (hash.myPiece    == Board.Piece.X) ? "X" : "O";
             var otherChar = (hash.otherPiece == Board.Piece.X) ? "X" : "O";
 
-            for (var i = 0; i < this._slots.Length; i++)
+            // Then fill out the game board.
+            for(var i = 0; i < this._slots.Length; i++)
             {
                 var slot = this._slots[i];
 
-                if (hash.isMyPiece(i))  slot.Content = myChar;
-                if (!hash.isMyPiece(i)) slot.Content = otherChar;
-                if (hash.isEmpty(i))    slot.Content = "";
+                if(hash.isMyPiece(i))  slot.Content = myChar;
+                if(!hash.isMyPiece(i)) slot.Content = otherChar;
+                if(hash.isEmpty(i))    slot.Content = "";
             }
         }
 
@@ -128,6 +135,7 @@ namespace CS_Project
         /// 
         /// If a parameter is `null`, then the label won't be changed.
         /// </summary>
+        /// 
         /// <param name="topText">The text for the top of the screen.</param>
         /// <param name="bottomText">The text for the bottom of the screen.</param>
         public void updateText(string topText, string bottomText = null)
@@ -142,6 +150,8 @@ namespace CS_Project
         /// <summary>
         /// This function is called on the game thread to signal that the match has ended.
         /// </summary>
+        /// 
+        /// <exception cref="System.InvalidOperationException">Thrown if this function is called when a match isn't in progress.</exception>
         public void onEndMatch()
         {
             if((this._flags & Flags.GameRunning) == 0)
@@ -159,15 +169,13 @@ namespace CS_Project
         /// This function is called when the 'Start Match' button is pressed.
         /// It begins a match between the AI and the player.
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private void onStartMatch(object sender, RoutedEventArgs e)
         {
             // Error checking
             if((this._flags & Flags.GameRunning) > 0)
                 throw new InvalidOperationException("Attempted to call onStartMatch while a game is already running");
 
-            // First, hide the button from being pressed again, and set the game running flag.
+            // First, hide the button from being pressed again, and set some flags.
             this.startButton.Visibility = Visibility.Hidden;
             this._flags                |= Flags.GameRunning;
             this._flags                |= Flags.CanPlacePiece;
@@ -177,11 +185,12 @@ namespace CS_Project
             {
                 try
                 {
-                    #if DEBUG
+                    // In debug builds, give the AI debug windows.
+                #if DEBUG
                     this._aiInstance = new AI(new NodeDebugWindow(), new NodeDebugWindow());
-                    #else
+                #else
                     this._aiInstance = new AI(null, null);
-                    #endif
+                #endif
                 }
                 catch(Exception ex)
                 {
@@ -251,13 +260,14 @@ namespace CS_Project
             string msg = $"Something went wrong: {ex.Message}";
 
             // In debug mode, show the stack trace.
-#if DEBUG
+        #if DEBUG
             msg += $"\n{ex.StackTrace}";
-#endif
+        #endif
 
             MessageBox.Show(msg, "An exception was thrown", MessageBoxButton.OK, MessageBoxImage.Error);
         }
 
+        // The 'entry point' for the game thread.
         private void gameThreadMain()
         {
             // All variables for the game thread should be kept inside this function.
@@ -273,15 +283,16 @@ namespace CS_Project
                     // If no match is being done, listen to the message queue for things.
                     if(state == GameState.Waiting)
                     {
-                        // Check for a message every 0.5 seconds.
+                        // Check for a message every 0.05 seconds.
                         Message msg;
                         while (!this.gameQueue.TryDequeue(out msg))
-                            Thread.Sleep(500);
+                            Thread.Sleep(50);
 
                         // If we get a StartMatchMessage, then perform a match.
                         if(msg is StartMatchMessage)
                         {
                             var info = msg as StartMatchMessage;
+
                             state = GameState.DoingMatch;
                             board.startMatch(info.xCon, info.oCon);
                             state = GameState.Waiting;
