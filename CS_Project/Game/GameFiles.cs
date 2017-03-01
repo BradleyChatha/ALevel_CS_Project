@@ -84,8 +84,8 @@ namespace CS_Project.Game
         /// <param name="name">The name to give the tree.</param>
         /// <param name="root">The root node of the tree.</param>
         /// <param name="overwrite">
-        /// If True, then if a tree called 'name' already exists, it is overwritten.
-        /// If False, then an IOException is thrown if a tree called 'name' already exists.
+        ///     If True, then if a tree called 'name' already exists, it is overwritten.
+        ///     If False, then an IOException is thrown if a tree called 'name' already exists.
         /// </param>
         public static void saveTree(string name, Node root, bool overwrite = true)
         {
@@ -125,8 +125,8 @@ namespace CS_Project.Game
         /// <param name="shouldThrow">If True, then an exception is thrown if 'name' doesn't exist.</param>
         /// 
         /// <returns>
-        /// The root node of the tree saved as 'name'.
-        /// Null is returned if 'shouldThrow' is False, and 'name' doesn't exist.
+        ///     The root node of the tree saved as 'name'.
+        ///     Null is returned if 'shouldThrow' is False, and 'name' doesn't exist.
         /// </returns>
         public static Node loadTree(string name, bool shouldThrow = true)
         {

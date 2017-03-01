@@ -45,6 +45,7 @@ namespace CS_Project.Game.Controllers
         /// <summary>
         /// Called whenever a new match is started.
         /// </summary>
+        /// 
         /// <param name="board">The board that is using this controller.</param>
         /// <param name="myPiece">Which piece this controller has been given.</param>
         public virtual void onMatchStart(Board board, Board.Piece myPiece)
@@ -58,6 +59,7 @@ namespace CS_Project.Game.Controllers
         /// 
         /// Notes for inheriting classes: Call 'super.onMatchEnd' only at the end of the function.
         /// </summary>
+        /// 
         /// <param name="boardState">The final state of the board.</param>
         /// <param name="index">The index of where the last piece was placed on the board.</param>
         /// <param name="result">Contains the match result.</param>
@@ -70,6 +72,7 @@ namespace CS_Project.Game.Controllers
         /// <summary>
         /// Called whenever the controller has to process its turn.
         /// </summary>
+        /// 
         /// <param name="boardState">
         ///     The hash of the current state of the board.
         /// 
@@ -84,6 +87,7 @@ namespace CS_Project.Game.Controllers
         /// <summary>
         /// Called after the controller has taken its turn.
         /// </summary>
+        /// 
         /// <param name="boardState">The state of the board after the controller's turn.</param>
         /// <param name="index">The index of where the last piece was placed on the board.</param>
         public abstract void onAfterTurn(Board.Hash boardState, int index);
