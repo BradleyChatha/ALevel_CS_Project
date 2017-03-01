@@ -24,10 +24,10 @@ namespace CS_Project.Game
         private const uint _oIndex = 1; // Index in _board for the o player
 
         private Board.Piece[] _board        { get; set; } // Current state of the Board.
-        private Board.Flags   _flags        { get; set; }
-        private Board.Stage   _stage        { get; set; }
+        private Board.Flags   _flags        { get; set; } // A set of bitflags used to keep track of some stuff.
+        private Board.Stage   _stage        { get; set; } // The current state of the match.
         private Controller    _current      { get; set; } // The Controller who currently has control of the board.
-        private int           _lastIndex    { get; set; } // The last index used to place a piece
+        private int           _lastIndex    { get; set; } // The last index used to place a piece.
 
         [Flags]
         private enum Flags : byte
@@ -46,6 +46,7 @@ namespace CS_Project.Game
         /// <summary>
         /// Creates a hash of the board, using a given piece as the "myPiece".
         /// </summary>
+        /// 
         /// <param name="piece">The piece that should be used as the "myPiece"</param>
         private Hash createHashFor(Board.Piece piece)
         {
@@ -60,10 +61,13 @@ namespace CS_Project.Game
         /// <summary>
         /// Determines if anyone has won yet.
         /// </summary>
+        /// 
         /// <param name="isTie">Set to 'true' if there was a tie.</param>
+        /// 
         /// <returns>The piece that won, or Piece.empty if no one has won yet.</returns>
         private Piece checkForWin(out bool isTie)
         {
+            // A closure that checks 3 spaces on the board, and returns true if they all are the 'p' piece.
             Func<uint, uint, uint, Piece, bool> check = null;
             check = delegate(uint i1, uint i2, uint i3, Piece p)
             {
@@ -72,21 +76,24 @@ namespace CS_Project.Game
                     && this._board[i3] == p;
             };
 
+            // Default isTie to false.
             isTie = false;
 
+            // For both X and O, check all the possible win positions.
             var pieces = new Piece[]{ Board.Piece.X, Board.Piece.O };
             foreach(var piece in pieces)
             {
-                if (check(0, 1, 2, piece)) return piece; // Top row
-                if (check(3, 4, 5, piece)) return piece; // Middle row
-                if (check(6, 7, 8, piece)) return piece; // Bottom row
-                if (check(0, 4, 8, piece)) return piece; // Top left to bottom right, and vice-versa
-                if (check(2, 4, 6, piece)) return piece; // Top right to bottom left, and vice-versa
-                if (check(0, 3, 6, piece)) return piece; // Top left to bottom left, and vice-versa
-                if (check(1, 4, 7, piece)) return piece; // Top middle to bottom middle, and vice-versa
-                if (check(2, 5, 8, piece)) return piece; // Top right to bottom right, and vice-versa
+                if(check(0, 1, 2, piece)) return piece; // Top row
+                if(check(3, 4, 5, piece)) return piece; // Middle row
+                if(check(6, 7, 8, piece)) return piece; // Bottom row
+                if(check(0, 4, 8, piece)) return piece; // Top left to bottom right, and vice-versa
+                if(check(2, 4, 6, piece)) return piece; // Top right to bottom left, and vice-versa
+                if(check(0, 3, 6, piece)) return piece; // Top left to bottom left, and vice-versa
+                if(check(1, 4, 7, piece)) return piece; // Top middle to bottom middle, and vice-versa
+                if(check(2, 5, 8, piece)) return piece; // Top right to bottom right, and vice-versa
             }
             
+            // If there are no empty spaces, and the above checks didn't make the function return, then we've tied.
             var emptyCount = this._board.Count(p => p == Piece.Empty);
             isTie          = (emptyCount == 0);
 
@@ -111,6 +118,7 @@ namespace CS_Project.Game
         /// Note to self: Run all of this stuff in a seperate thread, otherwise the GUI will freeze.
         /// Use System.Collections.Concurrent.ConcurrentQueue to talk between the two threads.
         /// </summary>
+        /// 
         /// <param name="xCon">The controller for the X piece.</param>
         /// <param name="oCon">The controller for the O piece.</param>
         public void startMatch(Controller xCon, Controller oCon)
@@ -122,6 +130,7 @@ namespace CS_Project.Game
             Debug.Assert(oCon != null, "The O controller is null.");
             this._stage = Stage.Initialisation;
 
+            // Inform the controllers what piece they're using.
             xCon.onMatchStart(this, Piece.X);
             oCon.onMatchStart(this, Piece.O);
 
@@ -133,30 +142,30 @@ namespace CS_Project.Game
             Board.Piece turnPiece = Piece.O;     // The piece of who's turn it is.
             Board.Piece wonPiece  = Piece.Empty; // The piece of who's won. Empty for no win.
             bool isTie            = false;
-            while (wonPiece == Piece.Empty && !isTie)
+            while (wonPiece == Piece.Empty && !isTie) // While there hasn't been a tie, and no one has won yet.
             {
                 // Unset some flags
                 this._flags &= ~Flags.HasSetPiece;
 
                 #region Do controller turn
                 this._stage     = Stage.InControllerTurn;
-                var hash        = this.createHashFor(turnPiece);
-                var controller  = (turnPiece == Piece.X) ? xCon : oCon;
+                var hash        = this.createHashFor(turnPiece);        // Create a hash from the point of view of who's turn it is.
+                var controller  = (turnPiece == Piece.X) ? xCon : oCon; // Figure out which controller to use this turn.
                 this._current   = controller;
                 
-                controller.onDoTurn(hash, this._lastIndex);
+                controller.onDoTurn(hash, this._lastIndex); // Allow the controller to perform its turn.
                 Debug.Assert((this._flags & Flags.HasSetPiece) != 0, 
                              $"The controller using the {turnPiece} piece didn't place a piece.");
                 #endregion
 
                 #region Do after controller turn
                 this._stage = Stage.AfterControllerTurn;
-                hash        = this.createHashFor(turnPiece);
-                controller.onAfterTurn(hash, this._lastIndex);
+                hash        = this.createHashFor(turnPiece);   // Create another hash for the controller
+                controller.onAfterTurn(hash, this._lastIndex); // And let the controller handle its 'after move' logic
                 #endregion
 
                 #region Misc stuff
-                wonPiece  = this.checkForWin(out isTie); // See if someone's won/tied yet.
+                wonPiece  = this.checkForWin(out isTie);                // See if someone's won/tied yet.
                 turnPiece = (turnPiece == Piece.X) ? Piece.O : Piece.X; // Change who's turn it is
                 #endregion
             }
@@ -164,6 +173,7 @@ namespace CS_Project.Game
             Debug.Assert(wonPiece != Piece.Empty || isTie, "There was no win condition, but the loop still ended.");
 
             #region Process the win
+            // Create a hash for both controllers, then tell them whether they tied, won, or lost.
             var stateX = this.createHashFor(Piece.X);
             var stateO = this.createHashFor(Piece.O);
             if(isTie)
@@ -195,6 +205,7 @@ namespace CS_Project.Game
         /// <summary>
         /// Sets a piece on the board.
         /// </summary>
+        /// 
         /// <param name="index">The index of where to place the piece.</param>
         /// <param name="controller">The controller that's placing the piece.</param>
         public void set(int index, Controller controller)
@@ -203,12 +214,16 @@ namespace CS_Project.Game
             // But I need these checks here to make sure my code is correct.
             Debug.Assert(this._stage == Stage.InControllerTurn,
                          "A controller attempted to place its piece outside of its onDoTurn function.");
+
             Debug.Assert(this.isCurrentController(controller), 
                          "Something's gone wrong somewhere. An incorrect controller is being used.");
+
             Debug.Assert(index < Board.pieceCount && index >= 0, 
                          $"Please use Board.pieceCount to properly limit the index. Index = {index}");
+
             Debug.Assert((this._flags & Flags.HasSetPiece) == 0,
                          "A controller has attempted to place its piece twice. This is a bug.");
+
             Debug.Assert(this._board[index] == Piece.Empty,
                          "A controller attempted to place its piece over another piece. Enough information is passed to prevent this.");
 
@@ -220,7 +235,9 @@ namespace CS_Project.Game
         /// <summary>
         /// Determines if the given controller is the controller who's turn it currently is.
         /// </summary>
+        /// 
         /// <param name="controller">The controller to check.</param>
+        /// 
         /// <returns>'true' if 'controller' is the controller's who's controlling the current turn.</returns>
         public bool isCurrentController(Controller controller)
         {
@@ -278,7 +295,7 @@ namespace CS_Project.Game
             /// <summary>
             /// The piece that the other player is using.
             /// </summary>
-            public Board.Piece otherPiece { private set; get; } // This and myPiece are readonly since once they've been set, they shouldn't be changed.
+            public Board.Piece otherPiece { private set; get; }
 
             /// <summary>
             /// The piece that the user of this class is using.
@@ -290,7 +307,8 @@ namespace CS_Project.Game
                 if (myPiece == Board.Piece.Empty)
                     throw new HashException("myPiece must not be Board.Piece.empty");
 
-                this.myPiece = myPiece;
+                // Figure out who is using what piece.
+                this.myPiece    = myPiece;
                 this.otherPiece = (myPiece == Board.Piece.O) ? Board.Piece.X
                                                              : Board.Piece.O;
             }
@@ -306,8 +324,10 @@ namespace CS_Project.Game
             /// <summary>
             /// Constructs a new Hash.
             /// </summary>
+            /// 
+            /// <exception cref="CS_Project.Game.HashException">If `myPiece` is `Board.Piece.empty`</exception>
+            /// 
             /// <param name="myPiece">The piece that you are using, this is needed so the class knows how to correctly format the hash.</param>
-            /// <exception cref="Game.Hash">If `myPiece` is `Board.Piece.empty`</exception>
             public Hash(Board.Piece myPiece) : this(myPiece, new string(Hash.emptyChar, 9))
             {
             }
@@ -315,18 +335,20 @@ namespace CS_Project.Game
             /// <summary>
             /// Constructs a new Hash from a given hash string.
             /// </summary>
+            /// 
+            /// <exception cref="CS_Project.Game.HashException">If `myPiece` is `Board.Piece.empty`</exception>
+            /// 
             /// <param name="myPiece">The piece that you are using, this is needed so the class knows how to correctly format the hash.</param>
             /// <param name="hash">
-            /// The hash string to use.
+            ///     The hash string to use.
             /// 
-            /// An internal check is made with every function call, that determines if the hash is still correct:
-            ///     * The hash's length must be the same as 'Board.pieceCount'
-            ///     * The hash's characters must only be made up of 'Hash.myChar', 'Hash.otherChar', and 'Hash.emptyChar'.
+            ///     An internal check is made with every function call, that determines if the hash is still correct:
+            ///         * The hash's length must be the same as 'Board.pieceCount'
+            ///         * The hash's characters must only be made up of 'Hash.myChar', 'Hash.otherChar', and 'Hash.emptyChar'.
             ///     
-            /// If the given hash fails to meet any of these checks, then a message box will be displayed.
-            /// In the future, when I can be bothered, exceptions will be thrown instead so this constructor is more user-friendly.
+            ///     If the given hash fails to meet any of these checks, then an error box will be displayed.
+            ///     In the future, when I can be bothered, exceptions will be thrown instead so the errors can actually be handled.
             /// </param>
-            /// <exception cref="Game.Hash">If `myPiece` is `Board.Piece.empty`</exception>
             public Hash(Board.Piece myPiece, IEnumerable<char> hash) : this(myPiece, false)
             {
                 this._hash = hash.ToArray();
@@ -337,28 +359,33 @@ namespace CS_Project.Game
             public override string ToString()
             {
                 this.checkCorrectness();
-                return new string(this._hash);
+                return new string(this._hash); // Create an immutable copy of the hash.
             }
 
             /// <summary>
             /// Sets a piece in the hash.
             /// </summary>
+            /// 
+            /// <exception cref="System.ArgumentOutOfRangeException">If index is >= `Board.pieceCount`</exception>
+            /// <exception cref="CS_Project.Game.HashException">If `allowOverwrite` is false, and there is a non-empty piece at 'index'</exception>
+            /// 
             /// <param name="piece">The piece to use</param>
             /// <param name="index">The index to place the piece</param>
             /// <param name="allowOverwrite">See the `HashException` part of this documentation</param>
-            /// <exception cref="System.ArgumentOutOfRangeException">If index is >= `Board.pieceCount`</exception>
-            /// <exception cref="Game.HashException">If `allowOverwrite` is false, and there is a non-empty piece at 'index'</exception>
             public void setPiece(Board.Piece piece, int index, bool allowOverwrite = false)
             {
+                // Enforce the behaviour of `allowOverwrite`
                 if (this.getPieceChar(index) != Hash.emptyChar && !allowOverwrite)
                     throw new HashException($"Attempted to place {piece} at index {index}, however a non-null piece is there and allowOverwrite is false. Hash = {this._hash}");
 
+                // Figure out which character to use to represent `piece`.
                 char pieceChar = '\0';
 
-                if (piece == this.myPiece) pieceChar = Hash.myChar;
+                     if (piece == this.myPiece)    pieceChar = Hash.myChar;
                 else if (piece == this.otherPiece) pieceChar = Hash.otherChar;
-                else pieceChar = Hash.emptyChar;
-
+                else                               pieceChar = Hash.emptyChar;
+                    
+                // Then place that character into the hash.
                 this._hash[index] = pieceChar;
                 this.checkCorrectness();
             }
@@ -366,14 +393,18 @@ namespace CS_Project.Game
             /// <summary>
             /// Gets the board piece at a certain index.
             /// </summary>
-            /// <param name="index">The index to use</param>
+            /// 
             /// <exception cref="System.ArgumentOutOfRangeException">If index is >= `Board.pieceCount`</exception>
+            /// 
+            /// <param name="index">The index to use</param>
+            /// 
             /// <returns>The board piece at 'index'</returns>
             public Board.Piece getPiece(int index)
             {
                 Board.Piece piece = Board.Piece.Empty;
-                var pieceChar = this.getPieceChar(index);
+                var pieceChar     = this.getPieceChar(index);
 
+                // Convert the character into a Board.Piece
                 switch (pieceChar)
                 {
                     case Hash.emptyChar: piece = Board.Piece.Empty; break;
@@ -389,8 +420,11 @@ namespace CS_Project.Game
             /// <summary>
             /// Determines if a specific piece in the hash is the user's.
             /// </summary>
-            /// <param name="index">The index to check.</param>
+            /// 
             /// <exception cref="System.ArgumentOutOfRangeException">If index is >= `Board.pieceCount`</exception>
+            /// 
+            /// <param name="index">The index to check.</param>
+            /// 
             /// <returns>`true` if the piece at `index` belongs to the user of this class. `false` otherwise.</returns>
             public bool isMyPiece(int index)
             {
@@ -400,8 +434,10 @@ namespace CS_Project.Game
             /// <summary>
             /// Determines if a specific piece in the hash is empty.
             /// </summary>
-            /// <param name="index">The index to check.</param>
             /// <exception cref="System.ArgumentOutOfRangeException">If index is >= `Board.pieceCount`</exception>
+            /// 
+            /// <param name="index">The index to check.</param>
+            /// 
             /// <returns>`true` if the piece at `index` is empty. `false` otherwise.</returns>
             public bool isEmpty(int index)
             {
@@ -411,6 +447,7 @@ namespace CS_Project.Game
             /// <summary>
             /// Clones the Hash.
             /// </summary>
+            /// 
             /// <returns>A clone of this instance of Hash.</returns>
             public object Clone()
             {
@@ -432,6 +469,7 @@ namespace CS_Project.Game
             /// in correct condition after every function call.
             /// 
             /// This doesn't seem to exist in C#, so this funciton is called by every other function to make sure it's still correct.
+            /// (From Future Me: There does seem to be an invariant in C#, but it's far too late to bother changing this)
             /// 
             /// This allows me to be confident that the class is working as it should be.
             /// </summary>
@@ -447,6 +485,9 @@ namespace CS_Project.Game
             /// <summary>
             /// Enforces that `index` is between 0 and Board.pieceCount
             /// </summary>
+            /// 
+            /// <exception cref="System.ArgumentOutOfRangeException">Thrown if `index` is >= to `Board.pieceCount`</exception>
+            /// 
             /// <param name="index">The index to check</param>
             private void enforceIndex(int index)
             {
@@ -541,7 +582,7 @@ namespace CS_Project.Game
                 if (version == 2)
                 {
                     var bytes        = input.ReadBytes(3);
-                    var identityBits = bytes[2] & 0xC; // Idenity = The bits defining 'myPiece' and 'otherPiece'. 0xC = 1100
+                    var identityBits = bytes[2] & 0xC; // Identity = The bits defining 'myPiece' and 'otherPiece'. 0xC = 1100
                     this.myPiece     = (identityBits & 0x4) == 0x4 ? Piece.O : Piece.X;
                     this.otherPiece  = (identityBits & 0x4) == 0x4 ? Piece.X : Piece.O;
 
