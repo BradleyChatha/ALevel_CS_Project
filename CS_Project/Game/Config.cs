@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace CS_Project.Game
+﻿namespace CS_Project.Game
 {
     /// <summary>
     /// Contains some static/constant data used to change a few things.
