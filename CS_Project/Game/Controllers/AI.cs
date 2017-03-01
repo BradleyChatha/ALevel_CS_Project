@@ -31,6 +31,12 @@ namespace CS_Project.Game.Controllers
                 this._debug.Dispatcher.Invoke(action);
         }
 
+        /// <summary>
+        /// Adds a new node to the end of the local tree.
+        /// </summary>
+        /// 
+        /// <param name="hash">The hash of the board.</param>
+        /// <param name="index">The index of where the piece was placed.</param>
         private void addToLocal(Board.Hash hash, int index)
         {
             // This is a cheeky way to add onto the end of the local tree.
@@ -49,7 +55,15 @@ namespace CS_Project.Game.Controllers
             this.doDebugAction(() => this._debug.updateNodeData((Node)this._localTree.Clone()));
         }
 
-        public AI(NodeDebugWindow window, NodeDebugWindow globalWindow)
+        /// <summary>
+        /// Constructs a new version of the AI.
+        /// 
+        /// The AI will attempt to load its global tree when constructed.
+        /// </summary>
+        /// 
+        /// <param name="window">A debug window for the local tree.</param>
+        /// <param name="globalWindow">A debug window for the global tree.</param>
+        public AI(NodeDebugWindow window = null, NodeDebugWindow globalWindow = null)
         {
             // Show the debug windows.
             if(window != null)
@@ -65,8 +79,8 @@ namespace CS_Project.Game.Controllers
             }
 
             // Setup variables.
-            this._useRandom  = false;
-            this._rng        = new Random();
+            this._useRandom = false;
+            this._rng       = new Random();
 
             // Load the move tree
             this._globalTree = GameFiles.loadTree(AI._globalName, false);
@@ -74,11 +88,12 @@ namespace CS_Project.Game.Controllers
                 this._globalTree = Node.root;
         }
 
+        // implement Controller.onMatchStart
         public override void onMatchStart(Board board, Board.Piece myPiece)
         {
             base.onMatchStart(board, myPiece);
 
-            // Reset the local tree and whatever else
+            // Reset some variables.
             this._localTree = Node.root;
             this._useRandom = false;
 
@@ -87,9 +102,10 @@ namespace CS_Project.Game.Controllers
             this.doDebugAction(() => this._globalDebug.updateStatusText("[GLOBAL MOVE TREE DEBUGGER]"));
         }
 
+        // implement Controller.onMatchEnd
         public override void onMatchEnd(Board.Hash state, int index, MatchResult result)
         {
-            // The windows wont' be closed, as I may still need them.
+            // The windows won't be closed, as I may still need them.
             // I can just close them manually afterwards.
             base.onMatchEnd(state, index, result);
 
@@ -99,7 +115,7 @@ namespace CS_Project.Game.Controllers
                 this.addToLocal(state, index);
 
             // Now, the amount of nodes in the local tree should be the same as: Board.pieceCount - amountOfEmptySlots
-            // If not, then we've not created a node.
+            // If not, then we've not created a node somewhere.
             // (This test was created to prevent this bug from happening again. Praise be for the debug windows.)
             var emptyCount = 0; // How many spaces are empty
             for(int i = 0; i < Board.pieceCount; i++) // Count the empty spaces.
@@ -135,15 +151,17 @@ namespace CS_Project.Game.Controllers
             this.doDebugAction(() => this._globalDebug.updateNodeData(this._globalTree));
         }
 
+        // implement Controller.onAfterTurn
         public override void onAfterTurn(Board.Hash boardState, int index)
         {
             // Add the AI's move.
             this.addToLocal(boardState, index);
         }
 
+        // implement Controller.onDoTurn
         public override void onDoTurn(Board.Hash boardState, int index)
         {
-            // Add the other controller's last move.
+            // Add the other controller's last move, if they made one.
             if(index != int.MaxValue)
                 this.addToLocal(boardState, index);
 
@@ -158,7 +176,7 @@ namespace CS_Project.Game.Controllers
         {
             this.doDebugAction(() => this._debug.updateStatusText("Function doStatisticallyBest was chosen."));
 
-            Node parent = null; // This is the node that will be used in statisticallyBest
+            Node parent = null; // This is the node that will be used as the root in statisticallyBest
 
             // If our local tree has some nodes in it, then...
             if(this._localTree.children.Count > 0)
@@ -185,11 +203,11 @@ namespace CS_Project.Game.Controllers
             else // Otherwise, the global tree's root is the parent.
                 parent = this._globalTree;
 
-            // Then use statisticallyBest on the node, so we can figure out our next move.
+            // Then use statisticallyBest on the parent, so we can figure out our next move.
             var average = Average.statisticallyBest(parent);
 
             // If Average.statisticallyBest fails, fall back to doRandom.
-            // Of, if the average win percent of the path is less than 25%, then there's a 25% chance to do a random move.
+            // Or, if the average win percent of the path is less than 25%, then there's a 25% chance to do a random move.
             if(average.path.Count == 0 
             ||(average.averageWinPercent < 25.0 && this._rng.NextDouble() < 0.25))
             {
@@ -211,6 +229,7 @@ namespace CS_Project.Game.Controllers
             this.doDebugAction(() => this._debug.updateStatusText("Function doRandom was chosen."));
 
             // Tis a bit naive, but meh.
+            // Just keep generating a random number between 0 and 9 (exclusive) until we find an empty slot.
             while(true)
             {
                 var index = this._rng.Next(0, (int)Board.pieceCount);
