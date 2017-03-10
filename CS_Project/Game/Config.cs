@@ -8,7 +8,7 @@
         /// <summary>
         /// A string form of the project's current version.
         /// </summary>
-        public const string versionString = "v0.2.3";
+        public const string versionString = "v1.0.0";
 
         /// <summary>
         /// The text to be displayed in the game's help box.
