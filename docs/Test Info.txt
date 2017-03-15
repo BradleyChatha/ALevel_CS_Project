@@ -1,0 +1,4 @@
+Jack:
+- Help says you play as 'O', when you actually play as 'X'.
+- The game doesn't make its 'data' folder automatically, and won't launch without it.
+- Start Match button covers some text
